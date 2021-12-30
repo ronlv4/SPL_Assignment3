@@ -1,14 +1,22 @@
 package bgu.spl.net.impl.Commands;
 
+import bgu.spl.net.impl.bidi.BGSService;
+import bgu.spl.net.impl.bidi.ConnectionsImpl;
+import bgu.spl.net.impl.newsfeed.NewsFeed;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Register implements BaseCommand {
+public class Register implements BaseCommand<BGSService> {
 
     String userName;
     String password;
     String birthday;
 
-    public Register() {
+    public Register(String userName, String password, String birthday) {
+        this.userName = userName;
+        this.password = password;
+        this.birthday = birthday;
     }
 
     @Override
@@ -22,8 +30,8 @@ public class Register implements BaseCommand {
     }
 
     @Override
-    public void execute() {
-
+    public Serializable execute(BGSService bgsService) {
+        return bgsService.registerUser(userName, password, birthday);
     }
 
 }

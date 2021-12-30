@@ -3,21 +3,42 @@ package bgu.spl.net.impl.bidi;
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.Commands.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 
 public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Serializable> {
-    private byte[] bytes = new byte[1 << 10]; //start with 1k
+    private final ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
+    private byte[] commandBytes = null;
+    private int commandBytesIndex = 0;
     private int len = 0;
     private int lastArgumentPosition = 0;
     private BaseCommand command;
 
     @Override
-    public BaseCommand decodeNextByte(byte nextByte) {
+    public Serializable decodeNextByte(byte nextByte) {
+        if (commandBytes == null) { //indicates that we are still reading the length
+                lengthBuffer.put(nextByte);
+                if (!lengthBuffer.hasRemaining()) { //we read 4 bytes and therefore can take the length
+                        lengthBuffer.flip();
+                        commandBytes = new byte[lengthBuffer.getInt()];
+                        commandBytesIndex = 0;
+                        lengthBuffer.clear();
+                    }
+            } else {
+                commandBytes[commandBytesIndex] = nextByte;
+                if (++commandBytesIndex == commandBytes.length) {
+                        Serializable result = deserializeCommand();
+                        commandBytes = null;
+                        return result;
+                    }
+            }
+
+            return null;
+        }
+    public Serializable MydecodeNextByte(byte nextByte) {
         if (len == 2) {
             short opCode = decodeOpcode();
             command = createAction(opCode);
@@ -29,7 +50,22 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Seria
         return null;
     }
 
+    private Serializable deserializeCommand() {
+        try {
+            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(commandBytes));
+            return (Serializable) in.readObject();
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("cannot desrialize object", ex);
+        }
+
+    }
+
     @Override
+    public byte[] encode(Serializable message) {
+        return new byte[0];
+    }
+
+//    @Override
     public byte[] encode(BaseCommand message) {
         return new byte[0];
     }
@@ -42,42 +78,42 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Seria
             e.printStackTrace();
         }
         switch (opCode){
-            case 1: // Register
-                return new Register();
-            case 2: // Login
-                return new Login();
-            case 3: // Logout
-                return new Logout();
-            case 4: // Follow/Unfollow
-                return new Follow();
-            case 5: // Post
-                return new Post();
-            case 6: // PM
-                return new PM();
-            case 7: // Logged in States
-                return new LoggedStates();
-            case 8: // Stats
-                return new Stats();
-            case 9: // Notification
-                return new Notification();
-            case 10: // Ack
-            case 11: // Error
-            case 12: // Block
+//            case 1: // Register
+//                return new Register();
+//            case 2: // Login
+//                return new Login();
+//            case 3: // Logout
+//                return new Logout();
+//            case 4: // Follow/Unfollow
+//                return new Follow();
+//            case 5: // Post
+//                return new Post();
+//            case 6: // PM
+//                return new PM();
+//            case 7: // Logged in States
+//                return new LoggedStates();
+//            case 8: // Stats
+//                return new Stats();
+//            case 9: // Notification
+//                return new Notification();
+//            case 10: // Ack
+//            case 11: // Error
+//            case 12: // Block
         }
         //TODO complete implementation
         return null;
     }
 
     private short decodeOpcode() {
-        short opcode = (short)((bytes[0] & 0xff) << 8);
-        opcode += (short)(bytes[1] & 0xff);
+        short opcode = (short)((commandBytes[0] & 0xff) << 8);
+        opcode += (short)(commandBytes[1] & 0xff);
         return opcode;
     }
 
     private BaseCommand popString() {
-        String result = new String(bytes, 0, len, StandardCharsets.UTF_8);
+        String result = new String(commandBytes, 0, len, StandardCharsets.UTF_8);
         len = 0;
-        for (Byte curByte: bytes){
+        for (Byte curByte: commandBytes){
 //            gener += (T)(curByte & 0xff);
 
         }
@@ -88,14 +124,14 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Seria
     }
 
     private void pushByte(byte nextByte) {
-        if (len >= bytes.length) {
-            bytes = Arrays.copyOf(bytes, len * 2);
+        if (len >= commandBytes.length) {
+            commandBytes = Arrays.copyOf(commandBytes, len * 2);
         }
         if (nextByte == '\0') {
-            command.addArgument(Arrays.copyOfRange(bytes, lastArgumentPosition, len));
+            command.addArgument(Arrays.copyOfRange(commandBytes, lastArgumentPosition, len));
             lastArgumentPosition = len;
         }
-        bytes[len++] = nextByte;
+        commandBytes[len++] = nextByte;
     }
 
 

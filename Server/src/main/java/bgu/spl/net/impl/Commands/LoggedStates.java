@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.Commands;
-
-public class LoggedStates implements BaseCommand{
-}
+//package bgu.spl.net.impl.Commands;
+//
+//public class LoggedStates implements BaseCommand{
+//}
