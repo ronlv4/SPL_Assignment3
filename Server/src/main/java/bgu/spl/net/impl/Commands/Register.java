@@ -19,15 +19,15 @@ public class Register implements BaseCommand<BGSService> {
         this.birthday = birthday;
     }
 
-    @Override
-    public void addArgument(byte[] arg) {
-        if (userName == null)
-            userName = new String(arg);
-        else if (password == null)
-            password = new String(arg);
-        else
-            birthday = new String(arg);
-    }
+//    @Override
+//    public void addArgument(byte[] arg) {
+//        if (userName == null)
+//            userName = new String(arg);
+//        else if (password == null)
+//            password = new String(arg);
+//        else
+//            birthday = new String(arg);
+//    }
 
     @Override
     public Serializable execute(BGSService bgsService) {

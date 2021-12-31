@@ -36,4 +36,9 @@ public class ConnectionsImpl<T> implements Connections<T> {
     public void disconnect(int connectionId) {
 
     }
+
+    public void addConnection(ConnectionHandler<T> handler){
+        int connectionId = activeConnections.size();
+        activeConnections.put(connectionId, handler);
+    }
 }

@@ -8,10 +8,6 @@ public class Login implements BaseCommand{
     private String password;
     private short captcha;
 
-    @Override
-    public void addArgument(byte[] arg) {
-
-    }
 
     @Override
     public Serializable execute(Object arg) {

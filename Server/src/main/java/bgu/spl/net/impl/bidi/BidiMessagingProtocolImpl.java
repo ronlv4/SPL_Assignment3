@@ -22,7 +22,8 @@ public class BidiMessagingProtocolImpl<T> implements BidiMessagingProtocol<Seria
 
     @Override
     public void process(Serializable message) {
-        ((Command) message).execute(arg);
+        Serializable response = ((Command) message).execute(arg);
+
     }
 
     @Override

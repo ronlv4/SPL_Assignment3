@@ -128,7 +128,7 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Seria
             commandBytes = Arrays.copyOf(commandBytes, len * 2);
         }
         if (nextByte == '\0') {
-            command.addArgument(Arrays.copyOfRange(commandBytes, lastArgumentPosition, len));
+//            command.addArgument(Arrays.copyOfRange(commandBytes, lastArgumentPosition, len));
             lastArgumentPosition = len;
         }
         commandBytes[len++] = nextByte;
