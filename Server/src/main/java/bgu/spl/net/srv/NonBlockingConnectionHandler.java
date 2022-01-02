@@ -3,6 +3,7 @@ package bgu.spl.net.srv;
 import bgu.spl.net.api .MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.impl.bidi.ConnectionsImpl;
 import bgu.spl.net.srv.bidi.ConnectionHandler;
 
 import java.io.IOException;
@@ -32,6 +33,11 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         this.encdec = reader;
         this.protocol = protocol;
         this.reactor = reactor;
+        System.out.println("inside Connection Handler Constructor");
+        System.out.println("handler: " + this);
+        System.out.println("protocol: " + protocol);
+        System.out.println("reader: " + reader);
+        System.out.println("");
     }
 
     public Runnable continueRead() {
@@ -51,6 +57,10 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                     while (buf.hasRemaining()) {
                         T nextMessage = encdec.decodeNextByte(buf.get());
                         if (nextMessage != null) {
+                            System.out.println("inside lambda of decoding the message");
+                            System.out.println("Thread name: " + Thread.currentThread().getName());
+                            System.out.println("handler: " + this);
+                            System.out.println("protocol: " + protocol);
                             protocol.process(nextMessage);
                         }
                     }
@@ -118,5 +128,9 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
     public void send(T msg) {
         writeQueue.add(ByteBuffer.wrap(encdec.encode(msg)));
         reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+    }
+
+    public void startProtocol(int connectionId, ConnectionsImpl<T> activeConnections){
+        protocol.start(connectionId, activeConnections);
     }
 }

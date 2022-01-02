@@ -38,6 +38,34 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Seria
 
             return null;
         }
+
+    @Override
+    public byte[] encode(Serializable message) {
+        return serializeObject(message);
+    }
+    private byte[] serializeObject(Serializable message) {
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+
+            //placeholder for the object size
+            for (int i = 0; i < 4; i++) {
+                bytes.write(0);
+            }
+
+            ObjectOutput out = new ObjectOutputStream(bytes);
+            out.writeObject(message);
+            out.flush();
+            byte[] result = bytes.toByteArray();
+
+            //now write the object size
+            ByteBuffer.wrap(result).putInt(result.length - 4);
+            return result;
+
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("cannot serialize object", ex);
+        }
+    }
+
     public Serializable MydecodeNextByte(byte nextByte) {
         if (len == 2) {
             short opCode = decodeOpcode();
@@ -53,22 +81,16 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<Seria
     private Serializable deserializeCommand() {
         try {
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(commandBytes));
-            return (Serializable) in.readObject();
+            Serializable serializableObject = (Serializable) in.readObject();
+            System.out.println(serializableObject);
+            return serializableObject;
+//            return (Serializable) in.readObject();
         } catch (Exception ex) {
             throw new IllegalArgumentException("cannot desrialize object", ex);
         }
 
     }
 
-    @Override
-    public byte[] encode(Serializable message) {
-        return new byte[0];
-    }
-
-//    @Override
-    public byte[] encode(BaseCommand message) {
-        return new byte[0];
-    }
     private BaseCommand createAction(short opCode) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         Properties properties = new Properties();

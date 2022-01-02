@@ -22,7 +22,7 @@ public class Reactor<T> implements Server<T> {
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
-    private ConnectionsImpl<T> activeConnections;
+    private ConnectionsImpl<T> activeConnections = new ConnectionsImpl<>();
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
 
@@ -36,6 +36,10 @@ public class Reactor<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
+        System.out.println("initialized Reactor:");
+        System.out.println("protocol: " + protocolFactory.get());
+        System.out.println("reader: " + readerFactory.get());
+        System.out.println("");
     }
 
     @Override
@@ -49,8 +53,8 @@ public class Reactor<T> implements Server<T> {
             serverSock.bind(new InetSocketAddress(port));
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
-            System.out.println(InetAddress.getLocalHost());
 			System.out.println("Server started");
+            System.out.println(InetAddress.getLocalHost());
 
             while (!Thread.currentThread().isInterrupted()) {
 
@@ -104,8 +108,14 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
+        int conId = activeConnections.addConnection(handler);
+        handler.startProtocol(conId, activeConnections);
         clientChan.register(selector, SelectionKey.OP_READ, handler);
-        activeConnections.addConnection(handler);
+        System.out.println("accepted socket: " + clientChan);
+        System.out.println("created for it new handler: " + handler);
+        System.out.println("protocol: " + protocolFactory.get());
+        System.out.println("reader: " + readerFactory.get());
+        System.out.println("");
     }
 
     private void handleReadWrite(SelectionKey key) {

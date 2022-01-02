@@ -24,7 +24,7 @@ public class ReactorMain {
         Server.reactor(
                 Integer.parseInt(args[1]),
                 Integer.parseInt(args[0]),
-                () -> new BidiMessagingProtocolImpl<BGSService>(service),
+                () -> new BidiMessagingProtocolImpl<>(service),
                 CommandMessageEncoderDecoder::new
         ).serve();
 

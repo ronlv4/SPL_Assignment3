@@ -34,11 +34,12 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     @Override
     public void disconnect(int connectionId) {
-
+        activeConnections.remove(connectionId);
     }
 
-    public void addConnection(ConnectionHandler<T> handler){
+    public int addConnection(ConnectionHandler<T> handler){
         int connectionId = activeConnections.size();
         activeConnections.put(connectionId, handler);
+        return connectionId;
     }
 }
