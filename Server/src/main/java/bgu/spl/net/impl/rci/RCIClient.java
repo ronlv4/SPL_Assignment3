@@ -24,22 +24,22 @@ public class RCIClient implements Closeable {
         out = new BufferedOutputStream(sock.getOutputStream());
     }
 
-    public void send(BaseCommand<?> cmd) throws IOException {
-        out.write(encdec.encode(cmd));
-        out.flush();
-    }
+//    public void send(BaseCommand<?> cmd) throws IOException {
+//        out.write(encdec.encode(cmd));
+//        out.flush();
+//    }
 
-    public Serializable receive() throws IOException {
-        int read;
-        while ((read = in.read()) >= 0) {
-            Serializable msg = encdec.decodeNextByte((byte) read);
-            if (msg != null) {
-                return msg;
-            }
-        }
-
-        throw new IOException("disconnected before complete reading message");
-    }
+//    public Serializable receive() throws IOException {
+//        int read;
+//        while ((read = in.read()) >= 0) {
+//            Serializable msg = encdec.decodeNextByte((byte) read);
+//            if (msg != null) {
+//                return msg;
+//            }
+//        }
+//
+//        throw new IOException("disconnected before complete reading message");
+//    }
 
     @Override
     public void close() throws IOException {

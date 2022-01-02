@@ -2,9 +2,7 @@ package bgu.spl.net.impl.Commands;
 
 import java.io.Serializable;
 
-public interface BaseCommand<T> extends Serializable {
+public interface BaseCommand<T> {
 
-//    public void addArgument(byte[] arg);
 
-    Serializable execute(T arg);
 }

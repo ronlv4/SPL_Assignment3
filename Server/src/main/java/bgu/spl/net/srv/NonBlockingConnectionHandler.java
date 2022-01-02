@@ -57,10 +57,12 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                     while (buf.hasRemaining()) {
                         T nextMessage = encdec.decodeNextByte(buf.get());
                         if (nextMessage != null) {
-                            System.out.println("inside lambda of decoding the message");
-                            System.out.println("Thread name: " + Thread.currentThread().getName());
-                            System.out.println("handler: " + this);
-                            System.out.println("protocol: " + protocol);
+//                            System.out.println("inside lambda of decoding the message");
+//                            System.out.println("Thread name: " + Thread.currentThread().getName());
+//                            System.out.println("handler: " + this);
+//                            System.out.println("protocol: " + protocol);
+                            System.out.println("this is the message recieved from client: ");
+                            System.out.println(nextMessage);
                             protocol.process(nextMessage);
                         }
                     }
