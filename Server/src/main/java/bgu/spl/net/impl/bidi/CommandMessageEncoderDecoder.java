@@ -49,8 +49,8 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
                 return new Register();
             case 2: // Login
                 return new Login();
-//            case 3: // Logout
-//                return new Logout();
+            case 3: // Logout
+                return new Logout();
 //            case 4: // Follow/Unfollow
 //                return new Follow();
 //            case 5: // Post

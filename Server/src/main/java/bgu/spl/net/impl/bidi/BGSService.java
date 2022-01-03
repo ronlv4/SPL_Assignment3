@@ -21,4 +21,8 @@ public class BGSService {
         return new Ack(Register.getOpCode());
     }
 
+    public ResponseCommand<BGSService> logoutUser(){
+        
+    }
+
 }
