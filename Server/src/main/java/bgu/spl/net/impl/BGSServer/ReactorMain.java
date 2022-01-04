@@ -24,7 +24,7 @@ public class ReactorMain {
         Server.reactor(
                 Integer.parseInt(args[1]),
                 Integer.parseInt(args[0]),
-                () -> new BidiMessagingProtocolImpl<>(service),
+                () -> new BidiMessagingProtocolImpl(service),
                 CommandMessageEncoderDecoder::new
         ).serve();
 
@@ -42,12 +42,12 @@ public class ReactorMain {
 //                LineMessageEncoderDecoder::new
 //        );
 
-//        Server.reactor(
-//                Runtime.getRuntime().availableProcessors(),
-//                7777, //port
-//                () ->  new RemoteCommandInvocationProtocol<>(feed), //protocol factory
-//                ObjectEncoderDecoder::new //message encoder decoder factory
-//        ).serve();
+        Server.reactor(
+                Runtime.getRuntime().availableProcessors(),
+                7777, //port
+                () ->  new RemoteCommandInvocationProtocol<>(feed), //protocol factory
+                ObjectEncoderDecoder::new //message encoder decoder factory
+        ).serve();
 
 
 //        reactorServer.serve();

@@ -3,7 +3,7 @@ package bgu.spl.net.impl.Commands;
 import bgu.spl.net.impl.bidi.BGSService;
 import jdk.internal.net.http.common.ImmutableExtendedSSLSession;
 
-public class Error implements ResponseCommand<BGSService> {
+public class Error implements ServerToClient<BGSService>, CommandWithArguments<BGSService> {
 
     private short messageOpCode;
 
@@ -21,6 +21,17 @@ public class Error implements ResponseCommand<BGSService> {
             byteResponse[i + 2] = byteMessageOpCode[i];
         }
         return byteResponse;
+    }
+
+    @Override
+    public void addArgument(byte[] arg) {
+        messageOpCode = bytesToShort(arg);
+    }
+
+    public short bytesToShort(byte[] byteArr) {
+        short result = (short) ((byteArr[0] & 0xff) << 8);
+        result += (short) (byteArr[1] & 0xff);
+        return result;
     }
 
     public byte[] shortToBytes(short num) {

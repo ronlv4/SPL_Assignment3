@@ -2,28 +2,30 @@ package bgu.spl.net.impl.bidi;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.Commands.*;
+import com.sun.jdi.PrimitiveValue;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseCommand<BGSService>> {
-    private final ByteBuffer lengthBuffer = ByteBuffer.allocate(4);
-    private byte[] commandBytes = null;
-    private int commandBytesIndex = 0;
+    private byte[] commandBytes = new byte[1 << 10];
     private int len = 0;
     private int lastArgumentPosition = 0;
-    private ServerCommand<BGSService> command;
+    private BaseCommand<BGSService> command;
 
 
-    public ServerCommand<BGSService> decodeNextByte(byte nextByte) {
+    public BaseCommand<BGSService> decodeNextByte(byte nextByte) {
         if (len == 2) {
             short opCode = decodeOpcode();
             command = createAction(opCode);
             lastArgumentPosition = 2;
         }
+
         if (nextByte == ';')
             return command;
         pushByte(nextByte);
@@ -32,11 +34,11 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
 
     @Override
     public byte[] encode(BaseCommand<BGSService> message) {
-        return ((ResponseCommand<BGSService>)message).encode();
+        return ((ServerToClient<BGSService>)message).encode();
     }
 
 
-    private ServerCommand<BGSService> createAction(short opCode) {
+    private BaseCommand<BGSService> createAction(short opCode) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         Properties properties = new Properties();
         try (InputStream resourceStream = loader.getResourceAsStream("application.properties")) {
@@ -51,10 +53,10 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
                 return new Login();
             case 3: // Logout
                 return new Logout();
-//            case 4: // Follow/Unfollow
-//                return new Follow();
-//            case 5: // Post
-//                return new Post();
+            case 4: // Follow/Unfollow
+                return new Follow();
+            case 5: // Post
+                return new Post();
 //            case 6: // PM
 //                return new PM();
 //            case 7: // Logged in States
@@ -76,25 +78,23 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
         return opcode;
     }
 
-    private BaseCommand popString() {
-        String result = new String(commandBytes, 0, len, StandardCharsets.UTF_8);
-        len = 0;
-        for (Byte curByte: commandBytes){
+//    private BaseCommand popString() {
+//        String result = new String(commandBytes, 0, len, StandardCharsets.UTF_8);
+//        len = 0;
+//        for (Byte curByte: commandBytes){
 //            gener += (T)(curByte & 0xff);
-
-        }
 //        return command;
 //        result = (T)Convert.ChangeType(bytes, typeof(T));
 //        return result;
-        return null;
-    }
+//        return null;
+//    }
 
     private void pushByte(byte nextByte) {
         if (len >= commandBytes.length) {
             commandBytes = Arrays.copyOf(commandBytes, len * 2);
         }
         if (nextByte == '\0') {
-            command.addArgument(Arrays.copyOfRange(commandBytes, lastArgumentPosition, len));
+            ((CommandWithArguments<BGSService>)command).addArgument(Arrays.copyOfRange(commandBytes, lastArgumentPosition, len));
             lastArgumentPosition = len;
         }
         commandBytes[len++] = nextByte;

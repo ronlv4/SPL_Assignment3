@@ -5,11 +5,12 @@ import bgu.spl.net.srv.bidi.ConnectionHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionsImpl<T> implements Connections<T> {
 
     private Map<Integer,ConnectionHandler<T>> activeConnections = new ConcurrentHashMap<>();
+    private AtomicInteger connectionId = new AtomicInteger(0);
 
     @Override
     public boolean send(int connectionId, T msg) {
@@ -38,8 +39,13 @@ public class ConnectionsImpl<T> implements Connections<T> {
     }
 
     public int addConnection(ConnectionHandler<T> handler){
-        int connectionId = activeConnections.size();
-        activeConnections.put(connectionId, handler);
-        return connectionId;
+        int conId = connectionId.getAndIncrement();
+        activeConnections.put(conId, handler);
+        return conId;
+    }
+
+    public ConnectionHandler<T> getHandler(int connectionId){
+        return activeConnections.get(connectionId);
+
     }
 }

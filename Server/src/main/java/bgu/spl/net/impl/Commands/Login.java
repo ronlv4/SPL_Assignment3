@@ -4,7 +4,7 @@ import bgu.spl.net.impl.bidi.BGSService;
 
 import java.io.Serializable;
 
-public class Login implements ServerCommand<BGSService> {
+public class Login implements ClientToServer<BGSService>, CommandWithArguments<BGSService> {
 
     private String userName;
     private String password;
@@ -12,8 +12,12 @@ public class Login implements ServerCommand<BGSService> {
 
 
     @Override
-    public void execute(BGSService arg) {
+    public ServerToClient<BGSService> execute(BGSService service, int connectionId) {
+        return service.loginUser(connectionId, userName, password, captcha);
+    }
 
+    public static short getOpcode(){
+        return 2;
     }
 
     @Override
@@ -24,9 +28,5 @@ public class Login implements ServerCommand<BGSService> {
             password = new String(arg);
         else
             captcha = arg[0];
-    }
-
-    public static short getOpcode(){
-        return 2;
     }
 }

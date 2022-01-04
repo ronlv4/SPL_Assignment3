@@ -2,7 +2,7 @@ package bgu.spl.net.impl.Commands;
 
 import bgu.spl.net.impl.bidi.BGSService;
 
-public class Register implements ServerCommand<BGSService> {
+public class Register implements ClientToServer<BGSService>, CommandWithArguments<BGSService> {
 
     String userName;
     String password;
@@ -18,8 +18,8 @@ public class Register implements ServerCommand<BGSService> {
     }
 
     @Override
-    public ResponseCommand<BGSService> execute(BGSService service) {
-        return service.registerUser(userName,password,birthday);
+    public ServerToClient<BGSService> execute(BGSService service, int connectionId) {
+        return service.registerUser(connectionId, userName, password, birthday);
     }
 
 
@@ -33,8 +33,9 @@ public class Register implements ServerCommand<BGSService> {
             birthday = new String(arg);
     }
 
-    public static short getOpCode(){
+    public static short getOpCode() {
         return 1;
     }
+
 
 }
