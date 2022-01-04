@@ -1,8 +1,11 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.api.MessagingProtocol;
+import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.impl.bidi.ConnectionsImpl;
+
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
@@ -15,24 +18,28 @@ import java.util.function.Supplier;
 public class Reactor<T> implements Server<T> {
 
     private final int port;
-    private final Supplier<MessagingProtocol<T>> protocolFactory;
+    private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
     private final Supplier<MessageEncoderDecoder<T>> readerFactory;
     private final ActorThreadPool pool;
     private Selector selector;
-
+    private ConnectionsImpl<T> activeConnections = new ConnectionsImpl<>();
     private Thread selectorThread;
     private final ConcurrentLinkedQueue<Runnable> selectorTasks = new ConcurrentLinkedQueue<>();
 
     public Reactor(
             int numThreads,
             int port,
-            Supplier<MessagingProtocol<T>> protocolFactory,
+            Supplier<BidiMessagingProtocol<T>> protocolFactory,
             Supplier<MessageEncoderDecoder<T>> readerFactory) {
 
         this.pool = new ActorThreadPool(numThreads);
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.readerFactory = readerFactory;
+        System.out.println("initialized Reactor:");
+        System.out.println("protocol: " + protocolFactory.get());
+        System.out.println("reader: " + readerFactory.get());
+        System.out.println("");
     }
 
     @Override
@@ -47,6 +54,7 @@ public class Reactor<T> implements Server<T> {
             serverSock.configureBlocking(false);
             serverSock.register(selector, SelectionKey.OP_ACCEPT);
 			System.out.println("Server started");
+            System.out.println(InetAddress.getLocalHost());
 
             while (!Thread.currentThread().isInterrupted()) {
 
@@ -100,7 +108,14 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
+        int conId = activeConnections.addConnection(handler);
+        handler.startProtocol(conId, activeConnections);
         clientChan.register(selector, SelectionKey.OP_READ, handler);
+        System.out.println("accepted socket: " + clientChan);
+        System.out.println("created for it new handler: " + handler);
+        System.out.println("protocol: " + protocolFactory.get());
+        System.out.println("reader: " + readerFactory.get());
+        System.out.println("");
     }
 
     private void handleReadWrite(SelectionKey key) {
