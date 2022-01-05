@@ -14,4 +14,10 @@ public class Logout implements ClientToServerCommand<BGSService> {
     public ServerToClientCommand<BGSService> execute(BGSService service, int connectionId) {
         return service.logoutUser(connectionId);
     }
+
+    @Override
+    public void decode(byte[] commandBytes) {
+
+    }
+
 }

@@ -5,6 +5,10 @@ import bgu.spl.net.impl.Commands.CommandWithArguments;
 import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
+import java.util.Arrays;
+
+import static bgu.spl.net.utils.Helpers.indexOf;
+
 public class Login implements ClientToServerCommand<BGSService>, CommandWithArguments<BGSService> {
 
     private String userName;
@@ -23,11 +27,12 @@ public class Login implements ClientToServerCommand<BGSService>, CommandWithArgu
 
     @Override
     public void decode(byte[] commandBytes) {
-        if (userName == null)
-            userName = new String(commandBytes);
-        else if (password == null)
-            password = new String(commandBytes);
-        else
-            captcha = commandBytes[0];
+        int prev = 2;
+        int next = indexOf(commandBytes, ((byte) 0), prev);
+        userName = new String(Arrays.copyOfRange(commandBytes, prev, next));
+        prev = next + 1;
+        next = indexOf(commandBytes, ((byte) 0), prev);
+        password = new String(Arrays.copyOfRange(commandBytes, prev, next));
+        captcha = commandBytes[next + 1];
     }
 }

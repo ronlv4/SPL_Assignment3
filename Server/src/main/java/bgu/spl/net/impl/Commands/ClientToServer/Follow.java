@@ -5,9 +5,14 @@ import bgu.spl.net.impl.Commands.CommandWithArguments;
 import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
+import java.util.Arrays;
+
+import static bgu.spl.net.utils.Helpers.indexOf;
+
+
 public class Follow implements ClientToServerCommand<BGSService>, CommandWithArguments<BGSService> {
 
-    private byte followUnfollow = -1;
+    private byte followUnfollow;
     private String userName;
 
     public Follow() {
@@ -25,11 +30,9 @@ public class Follow implements ClientToServerCommand<BGSService>, CommandWithArg
 
     @Override
     public void decode(byte[] commandBytes) {
-        if (followUnfollow == -1)
-            followUnfollow = commandBytes[0];
-        else
-            userName = new String(commandBytes);
-
+        followUnfollow = commandBytes[2];
+        int next = indexOf(commandBytes, ((byte) 0), 3);
+        userName = new String(Arrays.copyOfRange(commandBytes, 3, next));
     }
 
     public static short getOpcode(){
