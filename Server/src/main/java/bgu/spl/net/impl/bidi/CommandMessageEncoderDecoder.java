@@ -2,43 +2,38 @@ package bgu.spl.net.impl.bidi;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.Commands.*;
-import com.sun.jdi.PrimitiveValue;
+import bgu.spl.net.impl.Commands.ClientToServer.*;
 
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseCommand<BGSService>> {
     private byte[] commandBytes = new byte[1 << 10];
     private int len = 0;
-    private int lastArgumentPosition = 0;
-    private BaseCommand<BGSService> command;
+    private ClientToServerCommand<BGSService> command;
 
 
     public BaseCommand<BGSService> decodeNextByte(byte nextByte) {
         if (len == 2) {
             short opCode = decodeOpcode();
             command = createAction(opCode);
-            lastArgumentPosition = 2;
         }
-
-        if (nextByte == ';')
+        if (nextByte == ';') {
+            command.decode(commandBytes);
             return command;
+        }
         pushByte(nextByte);
         return null;
     }
 
     @Override
     public byte[] encode(BaseCommand<BGSService> message) {
-        return ((ServerToClient<BGSService>)message).encode();
+        return ((ServerToClientCommand<BGSService>)message).encode();
     }
 
 
-    private BaseCommand<BGSService> createAction(short opCode) {
+    private ClientToServerCommand<BGSService> createAction(short opCode) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         Properties properties = new Properties();
         try (InputStream resourceStream = loader.getResourceAsStream("application.properties")) {
@@ -57,17 +52,14 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
                 return new Follow();
             case 5: // Post
                 return new Post();
-//            case 6: // PM
-//                return new PM();
-//            case 7: // Logged in States
-//                return new LoggedStates();
-//            case 8: // Stats
-//                return new Stats();
-//            case 9: // Notification
-//                return new Notification();
-//            case 10: // Ack
-//            case 11: // Error
-//            case 12: // Block
+            case 6: // PM
+                return new PM();
+            case 7: // Logged in States
+                return new LogStat();
+            case 8: // Stats
+                return new Stat();
+            case 12: // Block
+                return new Block();
         }
         //TODO complete implementation
         return null;
@@ -92,10 +84,6 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
     private void pushByte(byte nextByte) {
         if (len >= commandBytes.length) {
             commandBytes = Arrays.copyOf(commandBytes, len * 2);
-        }
-        if (nextByte == '\0') {
-            ((CommandWithArguments<BGSService>)command).addArgument(Arrays.copyOfRange(commandBytes, lastArgumentPosition, len));
-            lastArgumentPosition = len;
         }
         commandBytes[len++] = nextByte;
     }

@@ -1,10 +1,10 @@
-package bgu.spl.net.impl.Commands;
+package bgu.spl.net.impl.Commands.ServerToClient;
 
+import bgu.spl.net.impl.Commands.CommandWithArguments;
+import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
-import java.io.Serializable;
-
-public class Ack implements ServerToClient<BGSService>, CommandWithArguments<BGSService> {
+public class Ack implements ServerToClientCommand<BGSService>, CommandWithArguments<BGSService> {
 
     private short messageOpCode;
     private Object optional;
@@ -38,8 +38,8 @@ public class Ack implements ServerToClient<BGSService>, CommandWithArguments<BGS
     }
 
     @Override
-    public void addArgument(byte[] arg) {
-        messageOpCode = bytesToShort(arg);
+    public void decode(byte[] commandBytes) {
+        messageOpCode = bytesToShort(commandBytes);
     }
 
     public short bytesToShort(byte[] byteArr) {

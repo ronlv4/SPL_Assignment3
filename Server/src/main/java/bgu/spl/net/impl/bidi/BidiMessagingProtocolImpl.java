@@ -3,8 +3,8 @@ package bgu.spl.net.impl.bidi;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl.net.api.bidi.Connections;
 import bgu.spl.net.impl.Commands.BaseCommand;
-import bgu.spl.net.impl.Commands.ClientToServer;
-import bgu.spl.net.impl.Commands.ServerToClient;
+import bgu.spl.net.impl.Commands.ClientToServerCommand;
+import bgu.spl.net.impl.Commands.ServerToClientCommand;
 
 public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<BaseCommand<BGSService>>{
 
@@ -27,7 +27,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<BaseComm
 
     @Override
     public void process(BaseCommand<BGSService> message) {
-        ServerToClient<BGSService> response = ((ClientToServer<BGSService>)message).execute(bgsService, connectionId);
+        ServerToClientCommand<BGSService> response = ((ClientToServerCommand<BGSService>)message).execute(bgsService, connectionId);
         activeConnections.send(connectionId, response);
     }
 
