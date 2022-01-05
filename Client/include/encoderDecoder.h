@@ -5,11 +5,12 @@ class encoderDecoder {
 
 
 private:
-    string _cur;
+    encoderDecoder();
 public:
-    encoderDecoder(std::string cur);
-    static void sendResponse;
+    static string encode(string message);
+    static short getType(string type);
+    static short bytesToShort(char *bytesArr);
+    static void shortToBytes(short num, char *bytesArr);
 };
 
 
-#endif //CLIENT_ENCODERDECODER_H
