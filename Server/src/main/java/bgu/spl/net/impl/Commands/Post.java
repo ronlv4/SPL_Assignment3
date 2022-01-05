@@ -1,16 +1,28 @@
 package bgu.spl.net.impl.Commands;
 
+import bgu.spl.net.impl.BGSServer.Objects.User;
 import bgu.spl.net.impl.bidi.BGSService;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class Post implements ClientToServer<BGSService>,CommandWithArguments<BGSService> {
 
+    private User userPosted;
     private String content;
+    private List<String> tagList;
 
     public Post() {
     }
 
     public Post(String content) {
         this.content = content;
+    }
+
+    public Post(User userPosted, String content) {
+        this.userPosted = userPosted;
+        this.content = content;
+        initializeTagList();
     }
 
     @Override
@@ -23,7 +35,28 @@ public class Post implements ClientToServer<BGSService>,CommandWithArguments<BGS
         content = new String(arg);
     }
 
+    private void initializeTagList(){ // assuming valid input
+        int userNameStartIndex = content.indexOf('@');
+        List<String> userNames = new LinkedList<>();
+        while (userNameStartIndex != -1){
+            int userNameEndIndex = content.indexOf(' ', userNameStartIndex);
+            if (userNameEndIndex != -1) {
+                userNames.add(content.substring(userNameStartIndex, userNameEndIndex));
+            }
+            else {
+                userNames.add(content.substring(userNameStartIndex));
+            }
+            userNameStartIndex = content.indexOf('@', userNameEndIndex);
+        }
+        tagList = userNames;
+    }
+
+    public List<String> getTagList() {
+        return tagList;
+    }
+
     public static short getOpCode(){
         return 5;
     }
+
 }

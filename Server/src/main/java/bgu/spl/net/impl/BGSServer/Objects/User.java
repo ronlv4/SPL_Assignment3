@@ -1,8 +1,11 @@
 package bgu.spl.net.impl.BGSServer.Objects;
 
+import bgu.spl.net.impl.Commands.Post;
+
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TransferQueue;
 
 public class User {
     private String userName;
@@ -10,6 +13,8 @@ public class User {
     private String birthday;
     private boolean loggedIn = false;
     private Set<User> following = new HashSet<>();
+    private List<Post> posts = new LinkedList<>();
+    private List<PrivateMessage> messagesReceived = new LinkedList<>();
 
     public User(String userName, String password, String birthday) {
         this.userName = userName;
@@ -48,4 +53,13 @@ public class User {
     public void removeFollower(User user){
         following.remove(user);
     }
+
+    public void addPost(Post post){
+        posts.add(post);
+    }
+
+    public void receivePrivateMessage(PrivateMessage message){
+        messagesReceived.add(message);
+    }
+
 }

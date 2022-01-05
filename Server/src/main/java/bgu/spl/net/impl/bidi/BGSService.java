@@ -1,19 +1,26 @@
 package bgu.spl.net.impl.bidi;
 
 import bgu.spl.net.api.bidi.Connections;
+import bgu.spl.net.impl.BGSServer.Objects.Notification;
 import bgu.spl.net.impl.BGSServer.Objects.User;
 import bgu.spl.net.impl.Commands.*;
 import bgu.spl.net.impl.Commands.Error;
+import bgu.spl.net.impl.Commands.Post;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BGSService {
 
     private Map<Integer, User> usersByConId = new ConcurrentHashMap<>();
     private Map<String, User> usersByUserName = new ConcurrentHashMap<>();
-    private Connections<BGSService> activeConnections = new ConnectionsImpl<>();
+    private Connections<BaseCommand<BGSService>> activeConnections = new ConnectionsImpl<>();
+    private Map<User, List<Post>> postDB = new ConcurrentHashMap<>();
+    private Map<User, List<PM>> messagesDB = new ConcurrentHashMap<>();
+    private Map<User, Queue<Notification>> usersNotifications = new ConcurrentHashMap<>();
+    private Set<String> filteredWords = new HashSet<>(Arrays.asList("government", "area51"));
+
 
     public ServerToClient<BGSService> registerUser(int connectionId, String userName, String password, String birthday){
         if (usersByUserName.containsKey(userName))
@@ -21,6 +28,9 @@ public class BGSService {
         User userToAdd = new User(userName, password, birthday);
         usersByConId.put(connectionId,userToAdd);
         usersByUserName.put(userName, userToAdd);
+        usersNotifications.put(userToAdd, new ConcurrentLinkedQueue<>());
+        postDB.put(userToAdd, new LinkedList<>());
+        messagesDB.put(userToAdd, new LinkedList<>());
         return new Ack(Register.getOpCode());
     }
 
@@ -39,7 +49,15 @@ public class BGSService {
         if (!user.getPassword().equals(password))
             return err;
         user.login();
+        checkAndSendNotification(connectionId);
         return ack;
+    }
+
+    private void checkAndSendNotification(int connectionId) {
+        // assuming user exists
+        Queue<Notification> notificationQueue = usersNotifications.get(usersByConId.get(connectionId));
+        for (Notification notification: notificationQueue)
+            activeConnections.send(connectionId, notification);
     }
 
     public ServerToClient<BGSService> logoutUser(int connectionId){
@@ -73,16 +91,50 @@ public class BGSService {
     }
 
     public ServerToClient<BGSService> post(int connectionId, String content){
-        User user = usersByConId.get(connectionId);
-        if (user == null)
-            return new Error(Post.getOpCode());
+        User poster = usersByConId.get(connectionId);
+        Error err = new Error(Post.getOpCode());
+        if (poster == null)
+            return err;
+        if (!poster.isLoggedIn())
+            return err;
+        Post post = new Post(poster, content);
+        poster.addPost(post);
+        List<String> tagList = post.getTagList();
+        for (String userName: tagList){
+            User notifiedUser = usersByUserName.get(userName);
+            if (notifiedUser != null) {
+                Notification notification = new Notification(((byte) 1), poster.getUserName(), content);
+                if (notifiedUser.isLoggedIn())
+                    sendNotification(connectionId, notification);
+                else
+                    usersNotifications.get(notifiedUser).add(notification);
+            }
+        }
+        return new Ack(Post.getOpCode());
     }
 
-    public ServerToClient<BGSService> SendPM(int connectionId, String userName, String content, String time){
+    private void sendNotification(int connectionId, Notification notification) {
+        activeConnections.send(connectionId, notification);
+    }
 
+    public ServerToClient<BGSService> SendPM(int connectionId, PM message){
+        User sendingUser = usersByConId.get(connectionId);
+        User receivingUser = usersByUserName.get(message.getUserName());
+        Error err = new Error(PM.getOpCode());
+        if (!sendingUser.isLoggedIn())
+            return err;
+        if (receivingUser == null)
+            return new Error(PM.getOpCode(), "@" + message.getUserName() + " isn’t applicable for private messages.");
+        if (!sendingUser.isFollowing(message.getUserName()))
+            return err;
+        for (String word: filteredWords)
+            message.setContent(message.getContent().replace(word, "<filtered>"));
+        messagesDB.get(sendingUser).add(message);
+        return new Ack(PM.getOpCode());
     }
 
     public ServerToClient<BGSService> logstat(int connectionId){
+
 
     }
 
@@ -97,9 +149,4 @@ public class BGSService {
     public ServerToClient<BGSService> block(int connectionId){
 
     }
-
-
-
-
-
     }

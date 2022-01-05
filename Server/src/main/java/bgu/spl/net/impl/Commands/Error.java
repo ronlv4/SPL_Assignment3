@@ -6,9 +6,15 @@ import jdk.internal.net.http.common.ImmutableExtendedSSLSession;
 public class Error implements ServerToClient<BGSService>, CommandWithArguments<BGSService> {
 
     private short messageOpCode;
+    private String errorMessage;
 
     public Error(short messageOpCode) {
         this.messageOpCode = messageOpCode;
+    }
+
+    public Error(short messageOpCode, String errorMessage) {
+        this.messageOpCode = messageOpCode;
+        this.errorMessage = errorMessage;
     }
 
     @Override
