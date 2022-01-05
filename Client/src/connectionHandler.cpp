@@ -1,5 +1,6 @@
 #include <connectionHandler.h>
- 
+#include <encoderDecoder.h>
+
 using boost::asio::ip::tcp;
 
 using std::cin;
@@ -68,17 +69,103 @@ bool ConnectionHandler::getLine(std::string& line) {
 }
 
 bool ConnectionHandler::sendLine(std::string& line) {
-    return sendFrameAscii(line, '\n');
+    return sendFrameAscii(encoderDecoder::encode(line), '\n');
 }
  
 bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     char ch;
     // Stop when we encounter the null character. 
     // Notice that the null character is not appended to the frame string.
+    char cur;
+
     try {
 		do{
-			getBytes(&ch, 1);
-            frame.append(1, ch);
+			char *convert = new char[2];
+            getBytes(&cur, 1);
+            convert[0] = cur;
+            getBytes(&cur, 1);
+            convert[1] = cur;
+            char* word = new char;
+            //frame.append(1, ch);
+            short opcode = encoderDecoder::bytesToShort(convert);
+            string output = "";
+
+            if(opcode==9){
+                output+="NOTIFICATION";
+                getBytes(&cur,1);
+                if(cur == 0)
+                    output+=" PM";
+                if(cur == 1)
+                    output+=" Public";
+                getBytes(&cur, 1);
+                int size = 0;
+                string name;
+                while(cur != '\0'){
+                    getBytes(&cur, 1);
+                    word+=cur;
+                    size++;
+                }
+                name.assign(word, size);
+                output+=name;
+                size=0;
+                string content;
+                getBytes(&cur, 1);
+                while(cur != '\0'){
+                    getBytes(&cur, 1);
+                    word+=cur;
+                    size++;
+                }
+                content.assign(content, size);
+                output+=" ";
+                output+=content;
+            }
+            if(opcode == 10){
+                output+="ACK";
+                char *convert2 = new char[2];
+                getBytes(&cur, 1);
+                convert2[0] = cur;
+                getBytes(&cur, 1);
+                convert2[1] = cur;
+                short opcode2 = encoderDecoder::bytesToShort(convert2);
+                output+=" ";
+                output+=opcode2;
+                output+=" ";
+                if(opcode2 == 7 || opcode2 == 8){
+                    getBytes(&cur, 1);
+                    convert2[0] = cur;
+                    getBytes(&cur, 1);
+                    convert2[1] = cur;
+                    short numFollowing = encoderDecoder::bytesToShort(convert2);
+                    getBytes(&cur, 1);
+                    convert2[0] = cur;
+                    getBytes(&cur, 1);
+                    convert2[1] = cur;
+                    short numFollowers = encoderDecoder::bytesToShort(convert2);
+                    getBytes(&cur, 1);
+                    convert2[0] = cur;
+                    getBytes(&cur, 1);
+                    convert2[1] = cur;
+                    short numPosts = encoderDecoder::bytesToShort(convert2);
+                    getBytes(&cur, 1);
+                    convert2[0] = cur;
+                    getBytes(&cur, 1);
+                    convert2[1] = cur;
+                    short age = encoderDecoder::bytesToShort(convert2);
+                    output+=std::to_string(age)+" "+ std::to_string(numPosts)+" "+std::to_string(numFollowers)+" "+std::to_string(numFollowing)+'\n';
+                }
+            }
+            if(opcode == 11){
+                output+="ERROR";
+                char *convert2 = new char[2];
+                getBytes(&cur, 1);
+                convert2[0] = cur;
+                getBytes(&cur, 1);
+                convert2[1] = cur;
+                short opcode2 = encoderDecoder::bytesToShort(convert2);
+                output+=opcode2;
+            }
+            cout << output << endl;
+
         }while (delimiter != ch);
     } catch (std::exception& e) {
         std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;

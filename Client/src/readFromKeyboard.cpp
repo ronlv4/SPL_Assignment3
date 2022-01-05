@@ -6,11 +6,9 @@ class readFromKeyboard{
 private:
     static const short bufsize = 1024;
     char buf[bufsize];
-    int _id;
-    std::mutex & _mutex;
     ConnectionHandler *_connectionHandler;
 public:
-    readFromKeyboard (int id, std::mutex& mutex, ConnectionHandler &connectionHandler) : _id(id), _mutex(mutex), _connectionHandler(&connectionHandler){}
+    readFromKeyboard (ConnectionHandler &connectionHandler) : _connectionHandler(&connectionHandler){}
 
     void run(){
         while (1) {

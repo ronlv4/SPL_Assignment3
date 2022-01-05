@@ -13,7 +13,7 @@ private:
     std::mutex & _mutex;
     ConnectionHandler connectionHandler;
 public:
-    readFromKeyboard (int id, std::mutex& mutex, ConnectionHandler &connectionHandler);
+    readFromKeyboard (ConnectionHandler &connectionHandler);
     void run(){};
 };
 
