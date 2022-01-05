@@ -1,9 +1,10 @@
-package bgu.spl.net.impl.Commands;
+package bgu.spl.net.impl.Commands.ServerToClient;
 
+import bgu.spl.net.impl.Commands.CommandWithArguments;
+import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
-import jdk.internal.net.http.common.ImmutableExtendedSSLSession;
 
-public class Error implements ServerToClient<BGSService>, CommandWithArguments<BGSService> {
+public class Error implements ServerToClientCommand<BGSService>, CommandWithArguments<BGSService> {
 
     private short messageOpCode;
     private String errorMessage;
@@ -30,8 +31,8 @@ public class Error implements ServerToClient<BGSService>, CommandWithArguments<B
     }
 
     @Override
-    public void addArgument(byte[] arg) {
-        messageOpCode = bytesToShort(arg);
+    public void decode(byte[] commandBytes) {
+        messageOpCode = bytesToShort(commandBytes);
     }
 
     public short bytesToShort(byte[] byteArr) {

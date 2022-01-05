@@ -1,21 +1,24 @@
-package bgu.spl.net.impl.Commands;
+package bgu.spl.net.impl.Commands.ClientToServer;
 
+import bgu.spl.net.impl.Commands.ClientToServerCommand;
+import bgu.spl.net.impl.Commands.CommandWithArguments;
+import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
-public class PM implements ClientToServer<BGSService>, CommandWithArguments<BGSService> {
+public class PM implements ClientToServerCommand<BGSService>, CommandWithArguments<BGSService> {
 
     private String userName;
     private String content;
     private String date;
 
     @Override
-    public ServerToClient<BGSService> execute(BGSService service, int connectionId) {
-        service.SendPM(connectionId, this);
+    public ServerToClientCommand<BGSService> execute(BGSService service, int connectionId) {
+       return service.SendPM(connectionId, this);
 
     }
 
     @Override
-    public void addArgument(byte[] arg) {
+    public void decode(byte[] commandBytes) {
 
     }
 

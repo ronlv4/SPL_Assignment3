@@ -1,10 +1,5 @@
 package bgu.spl.net.impl.newsfeed;
 
-import bgu.spl.net.impl.Commands.Register;
-import bgu.spl.net.impl.rci.RCIClient;
-
-import java.io.Serializable;
-
 public class NewsFeedClientMain {
 
     public static void main(String[] args) throws Exception {
@@ -19,14 +14,14 @@ public class NewsFeedClientMain {
     }
 
     private static void runFirstClient(String host) throws Exception {
-        try (RCIClient c = new RCIClient(host, 80)) {
-            c.send(new Register("rrr", "rrrrr", "23423"));
+//        try (RCIClient c = new RCIClient(host, 80)) {
+//            c.send(new Register("rrr", "rrrrr", "23423"));
 //            c.send(new PublishNewsCommand(
 //                    "jobs",
 //                    "System Programmer, knowledge in C++, Java and Python required. call 0x134693F"));
-
-            Serializable response = c.receive();
-            System.out.println(response); //ok
+//
+//            Serializable response = c.receive();
+//            System.out.println(response); //ok
 
 //            c.send(new PublishNewsCommand(
 //                    "headlines",
@@ -39,21 +34,21 @@ public class NewsFeedClientMain {
 //                    "THE CAKE IS A LIE!"));
 
 //            c.receive(); //ok
-        }
+//        }
 
     }
 
-    private static void runSecondClient(String host) throws Exception {
-        try (RCIClient c = new RCIClient(host, 7777)) {
+//    private static void runSecondClient(String host) throws Exception {
+//        try (RCIClient c = new RCIClient(host, 7777)) {
 //            c.send(new FetchNewsCommand("jobs"));
-            System.out.println("second client received: " + c.receive());
-        }
-    }
-
-    private static void runThirdClient(String host) throws Exception {
-        try (RCIClient c = new RCIClient(host, 7777)) {
+//            System.out.println("second client received: " + c.receive());
+//        }
+//    }
+//
+//    private static void runThirdClient(String host) throws Exception {
+//        try (RCIClient c = new RCIClient(host, 7777)) {
 //            c.send(new FetchNewsCommand("headlines"));
-            System.out.println("third client received: " + c.receive());
-        }
-    }
+//            System.out.println("third client received: " + c.receive());
+//        }
+//    }
 }
