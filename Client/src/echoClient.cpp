@@ -11,7 +11,6 @@ int main (int argc, char *argv[]) {
     }
     std::string host = argv[1];
     short port = atoi(argv[2]);
-    std:: mutex mutex;
 
     
     ConnectionHandler connectionHandler(host, port);
@@ -20,7 +19,7 @@ int main (int argc, char *argv[]) {
         return 1;
     }
 
-    readFromKeyboard task(1, mutex, connectionHandler);
+    readFromKeyboard task(connectionHandler);
 
     std::thread th1(&readFromKeyboard::run, &task);
     th1.join();

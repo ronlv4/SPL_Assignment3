@@ -18,7 +18,69 @@ std::string encoderDecoder::encode(std::string message){
     shortToBytes(typeInShort, bytesArr);
     encodedMessage += bytesArr[0];
     encodedMessage += bytesArr[1];
-    encodedMessage += message;
+    if(typeInShort==1){
+        till = message.find_first_of(" ");
+        string user = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += user;
+        encodedMessage += '0';
+        till = message.find_first_of(" ");
+        string password = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += password;
+        encodedMessage += '0';
+        string birthday = message;
+        encodedMessage += birthday;
+        encodedMessage += '0';
+    }
+    else if(typeInShort==2){
+        till = message.find_first_of(" ");
+        string user = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += user;
+        encodedMessage += '0';
+        till = message.find_first_of(" ");
+        string password = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += password;
+        encodedMessage += '0';
+        string captcha = message;
+        encodedMessage += captcha;
+    }
+    else if(typeInShort==5 || typeInShort==8 || typeInShort==12){
+        string content = message;
+        encodedMessage += content;
+        encodedMessage += '0';
+    }
+    else if(typeInShort==6){
+        till = message.find_first_of(" ");
+        string user = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += user;
+        encodedMessage += '0';
+        till = message.find_first_of(" ");
+        string content = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += content;
+        encodedMessage += '0';
+        string data = message;
+        encodedMessage += data;
+        encodedMessage += '0';
+    }
+    else if(typeInShort==9){
+        till = message.find_first_of(" ");
+        string user = message.substr(0,till);
+        message = message.substr(till+1);
+        encodedMessage += user;
+        encodedMessage += '0';
+        string content = message;
+        encodedMessage += content;
+        encodedMessage += '0';
+    }
+    else{
+        encodedMessage+=message;
+    }
+    encodedMessage += ';';
     return encodedMessage;
 }
 

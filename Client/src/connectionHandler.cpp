@@ -77,6 +77,7 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     // Stop when we encounter the null character. 
     // Notice that the null character is not appended to the frame string.
     char cur;
+    bool logout = false;
 
     try {
 		do{
@@ -153,6 +154,20 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
                     short age = encoderDecoder::bytesToShort(convert2);
                     output+=std::to_string(age)+" "+ std::to_string(numPosts)+" "+std::to_string(numFollowers)+" "+std::to_string(numFollowing)+'\n';
                 }
+                else if(opcode2==4){
+                    output+=" ";
+                    int size;
+                    string content;
+                    while(cur != '\0'){
+                        getBytes(&cur, 1);
+                        word+=cur;
+                        size++;
+                        content.assign(content, size);
+                    }
+                    output+=content;
+                }
+                else if(opcode2==3)
+                    logout=true;
             }
             if(opcode == 11){
                 output+="ERROR";
@@ -165,6 +180,9 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
                 output+=opcode2;
             }
             cout << output << endl;
+            if(logout){
+                std::terminate();
+            }
 
         }while (delimiter != ch);
     } catch (std::exception& e) {
@@ -173,13 +191,13 @@ bool ConnectionHandler::getFrameAscii(std::string& frame, char delimiter) {
     }
     return true;
 }
- 
+
 bool ConnectionHandler::sendFrameAscii(const std::string& frame, char delimiter) {
 	bool result=sendBytes(frame.c_str(),frame.length());
 	if(!result) return false;
 	return sendBytes(&delimiter,1);
 }
- 
+
 // Close down the connection properly.
 void ConnectionHandler::close() {
     try{
@@ -188,3 +206,4 @@ void ConnectionHandler::close() {
         std::cout << "closing failed: connection already closed" << std::endl;
     }
 }
+
