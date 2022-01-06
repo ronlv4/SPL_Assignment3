@@ -38,4 +38,11 @@ public class Follow implements ClientToServerCommand<BGSService>, CommandWithArg
     public static short getOpcode(){
         return 4;
     }
+
+    public byte getFollowUnfollow(){
+        return followUnfollow;
+    }
+    public String getUserName(){
+        return userName;
+    }
 }

@@ -143,7 +143,7 @@ public class BGSService {
             return err;
         if (!user.isLoggedIn())
             return err;
-        List<UserStats> userStatsList = new LinkedList<>();
+        LinkedList<UserStats> userStatsList = new LinkedList<UserStats>();
         for (User userToLog: usersByUserName.values()){
             if (!userToLog.isLoggedIn())
                 continue;
