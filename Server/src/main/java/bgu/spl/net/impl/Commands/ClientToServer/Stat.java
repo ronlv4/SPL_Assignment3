@@ -32,4 +32,8 @@ public class Stat implements ClientToServerCommand<BGSService>, CommandWithArgum
         }
         userNames.add(new String(Arrays.copyOfRange(commandBytes, prev, commandBytes.length - 1)));
     }
+
+    public static short getOpCode(){
+        return 8;
+    }
 }
