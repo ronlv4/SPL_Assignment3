@@ -3,7 +3,6 @@ package bgu.spl.net.impl.Commands.ClientToServer;
 import bgu.spl.net.impl.BGSServer.Objects.User;
 import bgu.spl.net.impl.Commands.ClientToServerCommand;
 import bgu.spl.net.impl.Commands.CommandWithArguments;
-import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
 import java.util.Arrays;
@@ -32,7 +31,7 @@ public class Post implements ClientToServerCommand<BGSService>, CommandWithArgum
     }
 
     @Override
-    public ServerToClientCommand<BGSService> execute(BGSService service, int connectionId) {
+    public boolean execute(BGSService service, int connectionId) {
         return service.post(connectionId, content);
     }
 
