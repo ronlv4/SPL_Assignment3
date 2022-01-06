@@ -61,7 +61,6 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
             case 12: // Block
                 return new Block();
         }
-        //TODO complete implementation
         return null;
     }
     private short decodeOpcode() {

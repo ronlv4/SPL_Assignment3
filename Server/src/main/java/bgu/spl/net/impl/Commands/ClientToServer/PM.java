@@ -5,6 +5,10 @@ import bgu.spl.net.impl.Commands.CommandWithArguments;
 import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
+import java.util.Arrays;
+
+import static bgu.spl.net.utils.Helpers.indexOf;
+
 public class PM implements ClientToServerCommand<BGSService>, CommandWithArguments<BGSService> {
 
     private String userName;
@@ -19,7 +23,14 @@ public class PM implements ClientToServerCommand<BGSService>, CommandWithArgumen
 
     @Override
     public void decode(byte[] commandBytes) {
-
+        int next = indexOf(commandBytes, ((byte) 0), 2);
+        userName = new String(Arrays.copyOfRange(commandBytes, 2, next));
+        int prev = next + 1;
+        next = indexOf(commandBytes, ((byte) 0), prev);
+        content = new String(Arrays.copyOfRange(commandBytes, prev, next));
+        prev = next + 1;
+        next = indexOf(commandBytes, ((byte) 0), prev);
+        date = new String(Arrays.copyOfRange(commandBytes, prev, next));
     }
 
     public void setContent(String content) {

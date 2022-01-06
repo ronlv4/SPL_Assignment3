@@ -17,7 +17,6 @@ public class Logout implements ClientToServerCommand<BGSService> {
 
     @Override
     public void decode(byte[] commandBytes) {
-
     }
 
 }
