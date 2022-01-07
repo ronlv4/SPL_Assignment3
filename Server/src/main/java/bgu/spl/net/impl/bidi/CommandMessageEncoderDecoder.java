@@ -21,6 +21,7 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
         }
         if (nextByte == ';') {
             command.decode(commandBytes);
+            len = 0;
             return command;
         }
         pushByte(nextByte);

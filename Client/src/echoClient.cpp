@@ -1,43 +1,53 @@
 #include "readFromKeyboard.h"
 #include <connectionHandler.h>
 
+using namespace std;
 /**
 * This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
 */
 int main (int argc, char *argv[]) {
+    string hell = "ronlv";
+    string password = "123";
+    hell += '\0';
+    hell += password;
+    hell += '\0' + password + '\0';
+    const char* message = hell.c_str();
+    cout<< *message;
     if (argc < 3) {
-        std::cerr << "Usage: " << argv[0] << " host port" << std::endl << std::endl;
+        cerr << "Usage: " << argv[0] << " host port" << std::endl << endl;
         return -1;
     }
-    std::string host = argv[1];
+    string host = argv[1];
     short port = atoi(argv[2]);
 
     
     ConnectionHandler connectionHandler(host, port);
     if (!connectionHandler.connect()) {
-        std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
+        cerr << "Cannot connect to " << host << ":" << port << endl;
         return 1;
     }
 
     readFromKeyboard task(connectionHandler);
 
-    std::thread th1(&readFromKeyboard::run, &task);
-    th1.join();
+    thread th1(&readFromKeyboard::run, &task);
+//    th1.join();
 
 
 	//From here we will see the rest of the ehco client implementation:
     while (1) {
-        std::string answer;
+        cout<< "got here" << endl;
+        string answer;
         if (!connectionHandler.getLine(answer)) {
-            std::cout << "Disconnected. Exiting...\n" << std::endl;
+            cout << "Disconnected. Exiting...\n" << endl;
             break;
         }
+        cout << "got answer" <<endl;
         
 		int len=answer.length();
         answer.resize(len-1);
-        std::cout << "Reply: " << answer << " " << len << " bytes " << std::endl << std::endl;
+        cout << "Reply: " << answer << " " << len << " bytes " << endl << endl;
         if (answer == "bye") {
-            std::cout << "Exiting...\n" << std::endl;
+            cout << "Exiting...\n" << endl;
             break;
         }
     }

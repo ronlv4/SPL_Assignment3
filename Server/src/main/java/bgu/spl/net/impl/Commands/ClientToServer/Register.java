@@ -38,7 +38,8 @@ public class Register implements ClientToServerCommand<BGSService>, CommandWithA
         next = indexOf(commandBytes, ((byte) 0), prev);
         password = new String(Arrays.copyOfRange(commandBytes, prev, next));
         prev = next + 1;
-        birthday = new String(Arrays.copyOfRange(commandBytes, prev, commandBytes.length));
+        next = indexOf(commandBytes, ((byte) 0), prev);
+        birthday = new String(Arrays.copyOfRange(commandBytes, prev, next));
     }
 
     public static short getOpCode() {

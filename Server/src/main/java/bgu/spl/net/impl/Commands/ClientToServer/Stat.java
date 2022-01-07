@@ -22,13 +22,14 @@ public class Stat implements ClientToServerCommand<BGSService>, CommandWithArgum
     public void decode(byte[] commandBytes) {
         userNames = new LinkedList<>();
         int prev = 2;
-        int next = indexOf(commandBytes, ((byte) 124), prev );
+        int next = indexOf(commandBytes, ((byte) 124), prev ); // 124 = \u007C = '|'
         while (next != -1) {
             userNames.add(new String(Arrays.copyOfRange(commandBytes, prev, next)));
             prev = next + 1;
             next = indexOf(commandBytes, ((byte) 124), prev );
         }
-        userNames.add(new String(Arrays.copyOfRange(commandBytes, prev, commandBytes.length - 1)));
+        next = indexOf(commandBytes, ((byte) 0), prev);
+        userNames.add(new String(Arrays.copyOfRange(commandBytes, prev, next)));
     }
 
     public static short getOpCode(){
