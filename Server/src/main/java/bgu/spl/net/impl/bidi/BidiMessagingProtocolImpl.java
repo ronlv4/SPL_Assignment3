@@ -27,8 +27,7 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<BaseComm
 
     @Override
     public void process(BaseCommand<BGSService> message) {
-        ServerToClientCommand<BGSService> response = ((ClientToServerCommand<BGSService>)message).execute(bgsService, connectionId);
-        activeConnections.send(connectionId, response);
+        ((ClientToServerCommand<BGSService>)message).execute(bgsService, connectionId);
     }
 
     @Override

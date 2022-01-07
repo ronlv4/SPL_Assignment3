@@ -108,8 +108,13 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
-        int conId = activeConnections.addConnection(handler);
+//        int conId = activeConnections.addConnection(handler);
+        int conId = handler.addConnection();
         handler.startProtocol(conId, activeConnections);
+
+
+
+
         clientChan.register(selector, SelectionKey.OP_READ, handler);
         System.out.println("accepted socket: " + clientChan);
         System.out.println("created for it new handler: " + handler);

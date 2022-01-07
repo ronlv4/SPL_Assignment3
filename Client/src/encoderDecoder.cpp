@@ -10,7 +10,9 @@ encoderDecoder::encoderDecoder(){}
 
 std::string encoderDecoder::encode(std::string message){
     string encodedMessage;
-    int till = message.find_first_of(" ");
+    char zero_byte = '\0';
+    char space_char = ' ';
+    unsigned long till = message .find_first_of(space_char);
     string type = message.substr(0, till);
     message = message.substr(till+1);
     short typeInShort = getType(type);
@@ -19,68 +21,67 @@ std::string encoderDecoder::encode(std::string message){
     encodedMessage += bytesArr[0];
     encodedMessage += bytesArr[1];
     if(typeInShort==1){
-        till = message.find_first_of(" ");
+        till = message.find_first_of(space_char);
         string user = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += user;
-        encodedMessage += '0';
-        till = message.find_first_of(" ");
+        encodedMessage += zero_byte;
+        till = message.find_first_of(space_char);
         string password = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += password;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
         string birthday = message;
         encodedMessage += birthday;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
     }
     else if(typeInShort==2){
-        till = message.find_first_of(" ");
+        till = message.find_first_of(space_char);
         string user = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += user;
-        encodedMessage += '0';
-        till = message.find_first_of(" ");
+        encodedMessage += zero_byte;
+        till = message.find_first_of(space_char);
         string password = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += password;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
         string captcha = message;
         encodedMessage += captcha;
     }
     else if(typeInShort==5 || typeInShort==8 || typeInShort==12){
         string content = message;
         encodedMessage += content;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
     }
     else if(typeInShort==6){
-        till = message.find_first_of(" ");
+        till = message.find_first_of(space_char);
         string user = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += user;
-        encodedMessage += '0';
-        till = message.find_first_of(" ");
+        encodedMessage += zero_byte;
+        till = message.find_first_of(space_char);
         string content = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += content;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
         string data = message;
         encodedMessage += data;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
     }
     else if(typeInShort==9){
-        till = message.find_first_of(" ");
+        till = message.find_first_of(space_char);
         string user = message.substr(0,till);
         message = message.substr(till+1);
         encodedMessage += user;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
         string content = message;
         encodedMessage += content;
-        encodedMessage += '0';
+        encodedMessage += zero_byte;
     }
     else{
         encodedMessage+=message;
     }
-    encodedMessage += ';';
     return encodedMessage;
 }
 

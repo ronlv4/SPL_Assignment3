@@ -8,6 +8,8 @@ import bgu.spl.net.impl.Commands.CommandWithArguments;
 import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
 
 import static bgu.spl.net.utils.Helpers.shortToBytes;
@@ -37,17 +39,38 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
                 return encodeStat();
         }
         byte[] byteResponse = new byte[4];
-        byte[] byteErrorOpCode = shortToBytes((short) 10);
+        byte[] byteAckOpCode = shortToBytes(getOpCode());
         byte[] byteMessageOpCode = shortToBytes(messageOpCode);
         for (int i = 0; i < 2; i++) {
-            byteResponse[i] = byteErrorOpCode[i];
+            byteResponse[i] = byteAckOpCode[i];
             byteResponse[i + 2] = byteMessageOpCode[i];
+        }
+        return byteResponse;
+    }
+
+    private byte[] encodeFollow() {
+        Follow followCommand = ((Follow) optional);
+        byte[] ackOpCode = shortToBytes(Ack.getOpCode());
+        byte[] followOpCode = shortToBytes(Follow.getOpcode());
+        byte[] userNameByte = followCommand.getUserName().getBytes(StandardCharsets.UTF_8);
+        byte[] byteResponse = new byte[5 + userNameByte.length];
+        byteResponse[byteResponse.length - 1] = 0;
+        for (int i = 0; i < 2; i++){
+            byteResponse[i] = ackOpCode[i];
+            byteResponse[i+2] = followOpCode[i];
+        }
+        for (int i = 0; i < userNameByte.length; i++){
+            byteResponse[i + 4] = userNameByte[0];
         }
         return byteResponse;
     }
 
     private byte[] encodeLogStat() {
         return encodeStatLogStat(LogStat.getOpCode());
+    }
+
+    private byte[] encodeStat() {
+        return encodeStatLogStat(Stat.getOpCode());
     }
 
     private byte[] encodeStatLogStat(short opCode) {
@@ -76,19 +99,6 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
         return 10;
     }
 
-    private byte[] encodeFollow() {
-        byte[] byteResponse = new byte[4];
-        byte[] ackOpCode = shortToBytes(Ack.getOpCode());
-        byte[] followOpCode = shortToBytes(Follow.getOpcode());
-        for (int i = 0; i < 2; i++){
-            byteResponse[i] = ackOpCode[i];
-            byteResponse[i+2] = followOpCode[i];
-        }
-
-        return new byte[0];
-    }
-
-
 //    private byte[] encodeStatLogStat(short opCode) {
 //        List<UserStats> userStats= (List<UserStats>) optional;
 //        byte[] byteResponse = new byte[12 * userStats.size()];
@@ -111,9 +121,6 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
 //            userIndex += 12;
 //        }
 //        return byteResponse;
-//    }
 
-    private byte[] encodeStat() {
-        return encodeStatLogStat(Stat.getOpCode());
-    }
+//    }
 }

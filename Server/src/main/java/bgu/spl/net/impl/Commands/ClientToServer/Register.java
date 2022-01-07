@@ -2,7 +2,6 @@ package bgu.spl.net.impl.Commands.ClientToServer;
 
 import bgu.spl.net.impl.Commands.ClientToServerCommand;
 import bgu.spl.net.impl.Commands.CommandWithArguments;
-import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
 import java.util.Arrays;
@@ -25,7 +24,7 @@ public class Register implements ClientToServerCommand<BGSService>, CommandWithA
     }
 
     @Override
-    public ServerToClientCommand<BGSService> execute(BGSService service, int connectionId) {
+    public boolean execute(BGSService service, int connectionId) {
         return service.registerUser(connectionId, userName, password, birthday);
     }
 
@@ -39,7 +38,8 @@ public class Register implements ClientToServerCommand<BGSService>, CommandWithA
         next = indexOf(commandBytes, ((byte) 0), prev);
         password = new String(Arrays.copyOfRange(commandBytes, prev, next));
         prev = next + 1;
-        birthday = new String(Arrays.copyOfRange(commandBytes, prev, commandBytes.length));
+        next = indexOf(commandBytes, ((byte) 0), prev);
+        birthday = new String(Arrays.copyOfRange(commandBytes, prev, next));
     }
 
     public static short getOpCode() {

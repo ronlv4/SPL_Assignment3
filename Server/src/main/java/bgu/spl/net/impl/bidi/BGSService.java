@@ -25,81 +25,87 @@ public class BGSService {
     private Set<String> filteredWords = new HashSet<>(Arrays.asList("government", "area51"));
 
 
-    public ServerToClientCommand<BGSService> registerUser(int connectionId, String userName, String password, String birthday) {
+    public boolean registerUser(int connectionId, String userName, String password, String birthday) {
         if (usersByUserName.containsKey(userName))
-            return new Error(Register.getOpCode());
+            return activeConnections.send(connectionId,new Error(Register.getOpCode()));
         User userToAdd = new User(userName, password, birthday);
         usersByConId.put(connectionId, userToAdd);
         usersByUserName.put(userName, userToAdd);
         usersNotifications.put(userToAdd, new ConcurrentLinkedQueue<>());
         postDB.put(userToAdd, new LinkedList<>());
         messagesDB.put(userToAdd, new LinkedList<>());
-        return new Ack(Register.getOpCode());
+        return activeConnections.send(connectionId, new Ack(Register.getOpCode()));
     }
 
-    public ServerToClientCommand<BGSService> loginUser(int connectionId, String userName, String password, byte captcha) {
+    public boolean loginUser(int connectionId, String userName, String password, byte captcha) {
         Error err = new Error(Login.getOpcode());
         Ack ack = new Ack(Login.getOpcode());
         if (captcha == 0)
-            return err;
+            return activeConnections.send(connectionId, err);
         User user = usersByConId.get(connectionId);
         if (user == null)
-            return err;
+            return activeConnections.send(connectionId, err);
         if (!user.getUserName().equals(userName))
-            return err;
+            return activeConnections.send(connectionId, err);
         if (user.isLoggedIn())
-            return err;
+            return activeConnections.send(connectionId, err);
         if (!user.getPassword().equals(password))
-            return err;
+            return activeConnections.send(connectionId, err);
         user.login();
         checkAndSendNotification(connectionId);
-        return ack;
+        return activeConnections.send(connectionId, ack);
     }
 
-    private void checkAndSendNotification(int connectionId) {
+    private boolean checkAndSendNotification(int connectionId) {
         // assuming user exists
         Queue<Notification> notificationQueue = usersNotifications.get(usersByConId.get(connectionId));
         for (Notification notification : notificationQueue)
-            activeConnections.send(connectionId, notification);
+            try {
+                activeConnections.send(connectionId, notification);
+            } catch (Exception e) {
+                return false;
+            }
+        return true;
     }
 
-    public ServerToClientCommand<BGSService> logoutUser(int connectionId) {
+    public boolean logoutUser(int connectionId) {
         User user = usersByConId.get(connectionId);
         if (user == null)
-            return new Error(Logout.getOpCode());
+            return activeConnections.send(connectionId, new Error(Logout.getOpCode()));
         user.logout();
-        return new Ack(Logout.getOpCode());
+        // TODO delete all references to user
+        // TODO terminate connection
+        return activeConnections.send(connectionId, new Ack(Logout.getOpCode()));
     }
 
-    public ServerToClientCommand<BGSService> followUser(int connectionId, byte followUnfollow, String userName) {
+    public boolean followUser(int connectionId,Follow thisCommand, byte followUnfollow, String userName) {
         User thisUser = usersByConId.get(connectionId);
         User userToFollowUnfollow = usersByUserName.get(userName);
         Error err = new Error(Follow.getOpcode());
         if (userToFollowUnfollow == null || thisUser == null)
-            return err;
+            return activeConnections.send(connectionId, err );
         if (!thisUser.isLoggedIn())
-            return err;
+            return activeConnections.send(connectionId, err);
         boolean isAlreadyFollowing = thisUser.isFollowing(userName);
         if (followUnfollow == 0 && isAlreadyFollowing)
-            return err;
+            return activeConnections.send(connectionId, err);
         if (followUnfollow == 1 && (!isAlreadyFollowing))
-            return err;
+            return activeConnections.send(connectionId, err);
         if (followUnfollow == 0) {
-            String[] optional = {"adasd", "asdfdf"};
             thisUser.addFollower(userToFollowUnfollow);
-            return new Ack(Follow.getOpcode(), new Follow(followUnfollow, userName)); //TODO Ack format is unclear here
+            return activeConnections.send(connectionId, new Ack(Follow.getOpcode(), thisCommand));
         }
         thisUser.removeFollower(userToFollowUnfollow);
-        return new Ack(Follow.getOpcode(), new Follow(followUnfollow, userName)); //TODO Ack format is unclear here
+        return activeConnections.send(connectionId, new Ack(Follow.getOpcode(), thisCommand));
     }
 
-    public ServerToClientCommand<BGSService> post(int connectionId, String content) {
+    public boolean post(int connectionId, String content) {
         User poster = usersByConId.get(connectionId);
         Error err = new Error(Post.getOpCode());
         if (poster == null)
-            return err;
+            return activeConnections.send(connectionId, err);
         if (!poster.isLoggedIn())
-            return err;
+            return activeConnections.send(connectionId, err);
         Post post = new Post(poster, content);
         poster.addPost(post);
         List<String> tagList = post.getTagList();
@@ -113,70 +119,88 @@ public class BGSService {
                     usersNotifications.get(notifiedUser).add(notification);
             }
         }
-        return new Ack(Post.getOpCode());
+        return activeConnections.send(connectionId, new Ack(Post.getOpCode()));
     }
 
-    private void sendNotification(int connectionId, Notification notification) {
-        activeConnections.send(connectionId, notification);
+    private boolean sendNotification(int connectionId, Notification notification) {
+        return activeConnections.send(connectionId, notification);
     }
 
-    public ServerToClientCommand<BGSService> SendPM(int connectionId, PM message) {
+    public boolean SendPM(int connectionId, PM message) {
         User sendingUser = usersByConId.get(connectionId);
         User receivingUser = usersByUserName.get(message.getUserName());
         Error err = new Error(PM.getOpCode());
         if (!sendingUser.isLoggedIn())
-            return err;
+            return activeConnections.send(connectionId, err);
         if (receivingUser == null)
-            return new Error(PM.getOpCode(), "@" + message.getUserName() + " isn’t applicable for private messages.");
+            return activeConnections.send(
+                    connectionId,
+                    new Error(PM.getOpCode(), "@" + message.getUserName() + " isn't applilcable for private messages." ));
         if (!sendingUser.isFollowing(message.getUserName()))
-            return err;
+            return activeConnections.send(connectionId, err);
         for (String word : filteredWords)
             message.setContent(message.getContent().replace(word, "<filtered>"));
         messagesDB.get(sendingUser).add(message);
-        return new Ack(PM.getOpCode());
+        return activeConnections.send(connectionId, new Ack(PM.getOpCode()));
     }
 
-    public ServerToClientCommand<BGSService> logstat(int connectionId) {
+    public boolean logstat(int connectionId) {
         User user = usersByConId.get(connectionId);
         Error err = new Error(LogStat.getOpCode());
         if (user == null)
-            return err;
+            return activeConnections.send(connectionId, err);
         if (!user.isLoggedIn())
-            return err;
-        List<UserStats> userStatsList = new LinkedList<>();
+            return activeConnections.send(connectionId, err);
         for (User userToLog: usersByUserName.values()){
             if (!userToLog.isLoggedIn())
                 continue;
             if (userToLog.isBlocking(user))
                 continue;
-            userStatsList.add(new UserStats(userToLog));
+            try {
+                activeConnections.send(connectionId, new Ack(LogStat.getOpCode(), new UserStats(userToLog)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
-        return new Ack(LogStat.getOpCode(), userStatsList);
+        return true;
     }
 
-    public ServerToClientCommand<BGSService> stat(int connectionId, List<String> userNames) {
-        for (String userName: userNames){
-
+    public boolean stat(int connectionId, List<String> userNames) {
+        User user = usersByConId.get(connectionId);
+        Error err = new Error(LogStat.getOpCode());
+        if (user == null)
+            return activeConnections.send(connectionId, err);
+        if (!user.isLoggedIn())
+            return activeConnections.send(connectionId, err);
+        for (String userNameToLog : userNames) {
+            User userToLog = usersByUserName.get(userNameToLog);
+            if (userToLog == null)
+                return activeConnections.send(connectionId, err);
+            if (userToLog.isBlocking(user) || user.isBlocking(userToLog))
+                return activeConnections.send(connectionId, err);
+            try {
+                activeConnections.send(connectionId, new Ack(LogStat.getOpCode(), new UserStats(userToLog)));
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
         }
-        return null;
+        return true;
     }
 
-    public void notify(int connectionId) {
-
-    }
-
-    public ServerToClientCommand<BGSService> blockUser(int connectionId, String userName) {
+    public boolean blockUser(int connectionId, String userName) {
         User userBlocking = usersByConId.get(connectionId);
         User userToBlock = usersByUserName.get(userName);
         Error err = new Error(Block.getOpCode());
         if (userBlocking == null)
-            return err;
+            return activeConnections.send(connectionId, err);
         if (userToBlock == null)
-            return err;
+            return activeConnections.send(connectionId, err);
         userBlocking.addToBlockingList(userToBlock);
         userToBlock.addToBlockersList(userBlocking);
         userToBlock.removeFollower(userBlocking);
         userBlocking.removeFollower(userToBlock);
-        return new Ack(Block.getOpCode());
+        return activeConnections.send(connectionId, new Ack(Block.getOpCode()));
     }
 }
