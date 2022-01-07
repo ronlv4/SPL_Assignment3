@@ -16,6 +16,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BGSService {
 
+    public BGSService(Connections<BaseCommand<BGSService>> activeConnections) {
+        this.activeConnections = activeConnections;
+    }
+
     private Map<Integer, User> usersByConId = new ConcurrentHashMap<>();
     private Map<String, User> usersByUserName = new ConcurrentHashMap<>();
     private Connections<BaseCommand<BGSService>> activeConnections = new ConnectionsImpl<>();
