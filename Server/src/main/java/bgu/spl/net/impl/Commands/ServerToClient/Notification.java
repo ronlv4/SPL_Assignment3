@@ -4,6 +4,8 @@ import bgu.spl.net.impl.Commands.CommandWithArguments;
 import bgu.spl.net.impl.Commands.ServerToClientCommand;
 import bgu.spl.net.impl.bidi.BGSService;
 
+import java.nio.charset.StandardCharsets;
+
 public class Notification implements ServerToClientCommand<BGSService>, CommandWithArguments<BGSService> {
 
     private byte type;
@@ -21,12 +23,7 @@ public class Notification implements ServerToClientCommand<BGSService>, CommandW
     }
 
     @Override
-    public void decode(byte[] commandBytes) {
-
-    }
-
-    @Override
     public byte[] encode() {
-        return new byte[0];
+        return ("\u0000\u0009" + type + postingUser + "\u0000" + content + "\u0000" + ";").getBytes(StandardCharsets.UTF_8);
     }
 }

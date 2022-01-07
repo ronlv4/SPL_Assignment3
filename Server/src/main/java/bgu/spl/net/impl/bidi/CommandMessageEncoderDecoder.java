@@ -21,6 +21,7 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
         }
         if (nextByte == ';') {
             command.decode(commandBytes);
+            len = 0;
             return command;
         }
         pushByte(nextByte);
@@ -61,7 +62,6 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
             case 12: // Block
                 return new Block();
         }
-        //TODO complete implementation
         return null;
     }
     private short decodeOpcode() {
