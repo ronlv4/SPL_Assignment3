@@ -34,7 +34,6 @@ void readFromKeyboard::run() {
                 break;
             }
             std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
-//            break;
         }
 }
 
