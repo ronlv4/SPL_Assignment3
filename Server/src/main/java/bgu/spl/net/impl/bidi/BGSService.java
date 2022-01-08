@@ -21,8 +21,9 @@ public class BGSService {
     }
 
     private Map<Integer, User> usersByConId = new ConcurrentHashMap<>();
+    private Map<Integer, User> connectedUsers = new ConcurrentHashMap<>();
     private Map<String, User> usersByUserName = new ConcurrentHashMap<>();
-    private Connections<BaseCommand<BGSService>> activeConnections = new ConnectionsImpl<>();
+    private Connections<BaseCommand<BGSService>> activeConnections;
     private Map<User, List<Post>> postDB = new ConcurrentHashMap<>();
     private Map<User, List<PM>> messagesDB = new ConcurrentHashMap<>();
     private Map<User, Queue<Notification>> usersNotifications = new ConcurrentHashMap<>();
@@ -33,7 +34,7 @@ public class BGSService {
         if (usersByUserName.containsKey(userName))
             return activeConnections.send(connectionId,new Error(Register.getOpCode()));
         User userToAdd = new User(userName, password, birthday);
-        usersByConId.put(connectionId, userToAdd);
+        usersByConId.put(connectionId, userToAdd); //TODO
         usersByUserName.put(userName, userToAdd);
         usersNotifications.put(userToAdd, new ConcurrentLinkedQueue<>());
         postDB.put(userToAdd, new LinkedList<>());
@@ -46,10 +47,8 @@ public class BGSService {
         Ack ack = new Ack(Login.getOpcode());
         if (captcha == 0)
             return activeConnections.send(connectionId, err);
-        User user = usersByConId.get(connectionId);
+        User user = usersByUserName.get(userName);
         if (user == null)
-            return activeConnections.send(connectionId, err);
-        if (!user.getUserName().equals(userName))
             return activeConnections.send(connectionId, err);
         if (user.isLoggedIn())
             return activeConnections.send(connectionId, err);
@@ -60,16 +59,15 @@ public class BGSService {
         return activeConnections.send(connectionId, ack);
     }
 
-    private boolean checkAndSendNotification(int connectionId) {
+    private void checkAndSendNotification(int connectionId) {
         // assuming user exists
         Queue<Notification> notificationQueue = usersNotifications.get(usersByConId.get(connectionId));
         for (Notification notification : notificationQueue)
             try {
                 activeConnections.send(connectionId, notification);
             } catch (Exception e) {
-                return false;
+                e.printStackTrace();
             }
-        return true;
     }
 
     public boolean logoutUser(int connectionId) {

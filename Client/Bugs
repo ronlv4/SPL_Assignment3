@@ -1,17 +1,14 @@
-/Users/ronlevi/IdeaProjects/SPL_Assignment3/Client/bin/echoExample 10.0.0.15 80
-Starting connect to 10.0.0.15:80
-REGISTER ron 123 12345
-Sent 23 bytes to server
-Reply: ACK 1 5 bytes
-
-LOGIN ron 123 0
-Sent 16 bytes to server
-Reply: ERROR2 6 bytes
-
-LOGIN ron 1232 1
+LOGIN Morty a321
 Sent 17 bytes to server
-Reply:  0 bytes
+Reply: ERROR 2 - 7 bytes 
 
-Reply:  0 bytes
+LOGIN Rick a123 1
+Sent 18 bytes to server
+Reply: ERROR 2 - 7 bytes 
 
-Reply:  0 bytes
+LOGIN Morty a123 0
+Sent 19 bytes to server
+Reply: ERROR 2 - 7 bytes 
+
+LOGIN Morty a123 1
+Sent 19 bytes to server

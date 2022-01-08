@@ -130,7 +130,4 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         return protocol;
     }
 
-    public int addConnection() {
-        return 0;
-    }
 }
