@@ -46,7 +46,11 @@ std::string encoderDecoder::encode(std::string message){
         message = message.substr(till+1);
         encodedMessage += password;
         encodedMessage += zero_byte;
-        string captcha = message;
+        string captcha;
+        if (message[0] == '0')
+            captcha = zero_byte;
+        else
+            captcha = "\u0001";
         encodedMessage += captcha;
     }
     else if(typeInShort==5 || typeInShort==8 || typeInShort==12){

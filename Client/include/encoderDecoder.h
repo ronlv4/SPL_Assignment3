@@ -9,8 +9,8 @@ private:
 public:
     static string encode(string message);
     static short getType(string type);
-    static short bytesToShort(char *bytesArr);
     static void shortToBytes(short num, char *bytesArr);
+    static short bytesToShort(char *bytesArr);
 };
 
 

@@ -38,13 +38,14 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
             case 8:
                 return encodeStat();
         }
-        byte[] byteResponse = new byte[4];
+        byte[] byteResponse = new byte[5];
         byte[] byteAckOpCode = shortToBytes(getOpCode());
         byte[] byteMessageOpCode = shortToBytes(messageOpCode);
         for (int i = 0; i < 2; i++) {
             byteResponse[i] = byteAckOpCode[i];
             byteResponse[i + 2] = byteMessageOpCode[i];
         }
+        byteResponse[4] = ((byte) ';');
         return byteResponse;
     }
 

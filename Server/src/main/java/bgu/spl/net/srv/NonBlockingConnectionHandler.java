@@ -121,7 +121,8 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
-    public void startProtocol(int connectionId, ConnectionsImpl<T> activeConnections){
+    public void startProtocol(ConnectionsImpl<T> activeConnections){
+        int connectionId = activeConnections.addConnection(this);
         protocol.start(connectionId, activeConnections);
     }
 
