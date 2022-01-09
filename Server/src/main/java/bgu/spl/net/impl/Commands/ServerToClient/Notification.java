@@ -24,6 +24,6 @@ public class Notification implements ServerToClientCommand<BGSService>, CommandW
 
     @Override
     public byte[] encode(byte delimiter) {
-        return ("\u0000\u0009" + type + postingUser + "\u0000" + content + "\u0000" + delimiter).getBytes(StandardCharsets.UTF_8);
+         return  ("\u0000\u0009" + type + postingUser + "\u0000" + content + "\u0000" + ((char) delimiter)).getBytes(StandardCharsets.UTF_8);
     }
 }

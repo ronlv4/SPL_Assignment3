@@ -43,7 +43,7 @@ public class BGSService {
     public boolean loginUser(int connectionId, String userName, String password, byte captcha) {
         Error err = new Error(Login.getOpcode());
         Ack ack = new Ack(Login.getOpcode());
-        if (captcha == 0)
+        if (captcha != 1)
             return activeConnections.send(connectionId, err);
         User user = usersByUserName.get(userName);
         if (user == null)

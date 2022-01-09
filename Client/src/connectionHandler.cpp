@@ -95,14 +95,14 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
     short opCode2;
     if (opCode == 9) {
         frame += "NOTIFICATION ";
-        if (bytesArray[2] == 0)
+        if (bytesArray[2] == '\u0000')
             frame += "PM";
-        if (bytesArray[2] == 1)
+        else
             frame += "Public";
         string userName;
         string content;
         userName.append(&bytesArray[3]);
-        content.append(&bytesArray[userName.size() + 3]);
+        content.append(&bytesArray[userName.size() + 4]);
         frame += userName + " " + content;
     }
     if (opCode == 10) {

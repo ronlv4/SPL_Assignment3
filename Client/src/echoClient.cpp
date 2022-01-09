@@ -30,7 +30,7 @@ int main (int argc, char *argv[]) {
             cout << "Disconnected. Exiting...\n" << endl;
             exit(0);
         }
-        cout << "Reply: " << answer << endl;
+        cout << answer << endl;
         if (answer == "bye") {
             cout << "Exiting...\n" << endl;
             exit(0);
