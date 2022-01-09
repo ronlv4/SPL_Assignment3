@@ -52,7 +52,7 @@ public class BGSService {
             return activeConnections.send(connectionId, err);
         if (!user.getPassword().equals(password))
             return activeConnections.send(connectionId, err);
-        user.login();
+        user.login(connectionId);
         connectedUsers.put(connectionId, user);
         checkAndSendNotification(connectionId);
         return activeConnections.send(connectionId, ack);
@@ -76,7 +76,7 @@ public class BGSService {
         user.logout();
         connectedUsers.remove(connectionId);
         if (activeConnections.send(connectionId, new Ack(Logout.getOpCode()))) {
-//            activeConnections.disconnect(connectionId);
+            activeConnections.disconnect(connectionId);
             return true;
         }
         return false;
@@ -117,13 +117,24 @@ public class BGSService {
             User notifiedUser = usersByUserName.get(userName);
             if (notifiedUser != null) {
                 Notification notification = new Notification(((byte) 1), poster.getUserName(), content);
-                if (notifiedUser.isLoggedIn())
-                    sendNotification(connectionId, notification);
-                else
-                    usersNotifications.get(notifiedUser).add(notification);
+                sendOrStoreNotification (connectionId, notifiedUser, notification);
             }
         }
         return activeConnections.send(connectionId, new Ack(Post.getOpCode()));
+    }
+
+    /**
+     * if notified user is logged in then send him a notification otherwise store this notification in his queue
+     * @param connectionId
+     * @param notifiedUser
+     * @param notification
+     */
+    private void sendOrStoreNotification(int connectionId, User notifiedUser, Notification notification) {
+
+        if (notifiedUser.isLoggedIn())
+            sendNotification(connectionId, notification);
+        else
+            usersNotifications.get(notifiedUser).add(notification);
     }
 
     private boolean sendNotification(int connectionId, Notification notification) {
@@ -140,7 +151,7 @@ public class BGSService {
             return activeConnections.send(
                     connectionId,
                     new Error(PM.getOpCode(), "@" + message.getUserName() + " isn't applilcable for private messages." ));
-        if (!sendingUser.isFollowing(message.getUserName()))
+        if (!sendingUser.isFollowing(receivingUser.getUserName()))
             return activeConnections.send(connectionId, err);
         for (String word : filteredWords)
             message.setContent(message.getContent().replace(word, "<filtered>"));

@@ -13,6 +13,7 @@ public class User {
     private String password;
     private String birthday;
     private boolean loggedIn = false;
+    private int connectionId;
     private Set<User> following = new HashSet<>();
     private Set<User> followers= new HashSet<>();
     private Set<User> blocking = new HashSet<>();
@@ -42,12 +43,14 @@ public class User {
         return birthday;
     }
 
-    public void login(){
+    public void login(int connectionId){
         loggedIn = true;
+        this.connectionId = connectionId;
     }
 
     public void logout(){
         loggedIn = false;
+        this.connectionId = -1;
     }
 
     public boolean isFollowing(String userName){

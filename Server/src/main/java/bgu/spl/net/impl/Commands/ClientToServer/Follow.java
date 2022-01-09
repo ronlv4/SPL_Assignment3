@@ -25,8 +25,8 @@ public class Follow implements ClientToServerCommand<BGSService>, CommandWithArg
     @Override
     public void decode(byte[] commandBytes) {
         followUnfollow = commandBytes[2];
-        int next = indexOf(commandBytes, ((byte) 0), 2);
-        userName = new String(Arrays.copyOfRange(commandBytes, 2, next));
+        int next = indexOf(commandBytes, ((byte) 0), 3);
+        userName = new String(Arrays.copyOfRange(commandBytes, 3, next));
     }
 
     public byte getFollowUnfollow() {

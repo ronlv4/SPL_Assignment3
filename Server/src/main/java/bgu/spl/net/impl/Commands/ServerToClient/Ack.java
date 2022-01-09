@@ -60,7 +60,7 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
             byteResponse[i+2] = followOpCode[i];
         }
         for (int i = 0; i < userNameByte.length; i++){
-            byteResponse[i + 4] = userNameByte[0];
+            byteResponse[i + 4] = userNameByte[i];
         }
         byteResponse[byteResponse.length - 2] = '\0';
         byteResponse[byteResponse.length - 1] = (delimiter);

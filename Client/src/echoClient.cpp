@@ -22,8 +22,6 @@ int main (int argc, char *argv[]) {
     readFromKeyboard task(connectionHandler);
 
     thread th1(&readFromKeyboard::run, &task);
-//    th1.join();
-
 
 	//From here we will see the rest of the ehco client implementation:
     while (1) {
