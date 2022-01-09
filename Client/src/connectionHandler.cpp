@@ -118,10 +118,10 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
         opCode2 = encoderDecoder::bytesToShort(bytesArray + 2);
         frame += " " + std::to_string(opCode2);
         if (opCode2 == 7 || opCode2 == 8) {
-            short numFollowing = encoderDecoder::bytesToShort(bytesArray + 4);
-            short numFollowers = encoderDecoder::bytesToShort(bytesArray + 6);
-            short numPosts = encoderDecoder::bytesToShort(bytesArray + 8);
-            short age = encoderDecoder::bytesToShort(bytesArray + 10);
+            short age = encoderDecoder::bytesToShort(bytesArray + 4);
+            short numPosts = encoderDecoder::bytesToShort(bytesArray + 6);
+            short numFollowers = encoderDecoder::bytesToShort(bytesArray + 8);
+            short numFollowing = encoderDecoder::bytesToShort(bytesArray + 10);
             frame += " " + std::to_string(age) + " " + std::to_string(numPosts) + " " + std::to_string(numFollowers) +
                      " " + std::to_string(numFollowing) + '\n';
         } else if (opCode2 == 4) {
