@@ -32,7 +32,6 @@ int main (int argc, char *argv[]) {
             cout << "Disconnected. Exiting...\n" << endl;
             exit(0);
         }
-		unsigned long len=answer.size();
         cout << "Reply: " << answer << endl;
         if (answer == "bye") {
             cout << "Exiting...\n" << endl;
