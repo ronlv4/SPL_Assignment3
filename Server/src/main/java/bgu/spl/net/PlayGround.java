@@ -12,8 +12,7 @@ import java.util.function.Supplier;
 
 public class PlayGround {
     public static void main(String[] args) {
-        String str1 = "adasdas0asdsa";
-        String[] str2= str1.split("0");
-        Arrays.toString(str2);
+        byte[] commandBytes = {'1', '\0', 48, 0, 127};
+        byte followUnfollow = commandBytes[2];
     }
 }

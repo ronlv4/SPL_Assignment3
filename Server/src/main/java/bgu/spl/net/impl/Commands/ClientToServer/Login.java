@@ -12,7 +12,7 @@ public class Login implements ClientToServerCommand<BGSService>, CommandWithArgu
 
     private String userName;
     private String password;
-    private byte captcha;
+    private byte captcha = 0;
 
 
     @Override

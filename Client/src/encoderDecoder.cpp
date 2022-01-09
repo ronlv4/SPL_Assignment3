@@ -83,6 +83,20 @@ std::string encoderDecoder::encode(std::string message){
         encodedMessage += content;
         encodedMessage += zero_byte;
     }
+    else if(typeInShort==4){
+        till = message.find_first_of(space_char);
+        string type = message.substr(0,till);
+        message = message.substr(till+1);
+        if(type=="0"){
+            encodedMessage += zero_byte;
+        }
+        else{
+            encodedMessage+= "\u0001";
+        }
+        string name = message;
+        encodedMessage+=name;
+        encodedMessage+=zero_byte;
+    }
     else{
         encodedMessage+=message;
     }
