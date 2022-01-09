@@ -1,6 +1,6 @@
 #include "readFromKeyboard.h"
 #include <connectionHandler.h>
-#include <boost/thread.hpp>
+#include <thread>
 
 using namespace std;
 /**
