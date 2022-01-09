@@ -31,7 +31,7 @@ public class UserStats {
     }
 
     private short calculateAge(String birthday) throws ParseException{
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         Date d = sdf.parse(birthday);
         Calendar c = Calendar.getInstance();
         c.setTime(d);

@@ -59,10 +59,12 @@ public class User {
 
     public void addFollower(User user){
         following.add(user);
+        user.followers.add(this);
     }
 
     public void removeFollower(User user){
         following.remove(user);
+        user.followers.remove(this);
     }
 
     public void addPost(Post post){

@@ -54,7 +54,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                         if (nextMessage != null) {
                             protocol.process(nextMessage);
                         }
-                    }
+                     }
                 } finally {
                     releaseBuffer(buf);
                 }
