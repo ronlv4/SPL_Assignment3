@@ -14,9 +14,9 @@ public class PlayGround {
     public static void main(String[] args) {
         byte type = '\u0001';
         String postingUser = "ron";
-        String content = "wubwub";
+        String content = "aaaaaaa bbbbbb dddddd";
         byte delimiter = ';';
-        byte[] response = ("\u0000\u0009" + type + postingUser + "\u0000" + content + "\u0000" + ((char) delimiter)).getBytes(StandardCharsets.UTF_8);
+        byte[] response = ("\u0000\u0009" + ((char) type) + postingUser + "\u0000" + content + "\u0000" + ((char) delimiter)).getBytes(StandardCharsets.UTF_8);
         System.out.println("hello");
     }
 }

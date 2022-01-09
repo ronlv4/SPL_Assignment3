@@ -64,13 +64,8 @@ std::string encoderDecoder::encode(std::string message){
         message = message.substr(till+1);
         encodedMessage += user;
         encodedMessage += zero_byte;
-        till = message.find_first_of(space_char);
-        string content = message.substr(0,till);
-        message = message.substr(till+1);
+        string content = message.substr(0);
         encodedMessage += content;
-        encodedMessage += zero_byte;
-        string data = message;
-        encodedMessage += data;
         encodedMessage += zero_byte;
     }
     else if(typeInShort==9){

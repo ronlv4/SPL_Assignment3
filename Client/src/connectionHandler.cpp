@@ -101,8 +101,16 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
             frame += "Public";
         string userName;
         string content;
-        userName.append(&bytesArray[3]);
-        content.append(&bytesArray[userName.size() + 4]);
+        i = 3;
+        do {
+            userName.push_back(bytesArray[i]);
+            i++;
+        } while (bytesArray[i] != '\0');
+        i++; //skipping the null char
+        do {
+            content.push_back(bytesArray[i]);
+            i++;
+        } while (bytesArray[i] != '\0');
         frame += " " + userName + " " + content;
     }
     if (opCode == 10) {
