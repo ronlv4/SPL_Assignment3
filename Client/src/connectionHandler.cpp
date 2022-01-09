@@ -94,23 +94,16 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
     bool logout = false;
     short opCode2;
     if (opCode == 9) {
-        frame += "NOTIFICATION";
-        if (bytesArray[2] == 0)
-            frame += " PM";
-        if (bytesArray[2] == 1)
-            frame += " Public";
+        frame += "NOTIFICATION ";
+        if (bytesArray[2] == '\u0000')
+            frame += "PM";
+        else
+            frame += "Public";
         string userName;
-        i = 3;
-        while (bytesArray[i] != '\0') {
-            userName.append(&bytesArray[i]);
-            i++;
-        }
         string content;
-        while (bytesArray[i] != '\0') {
-            content.append(&bytesArray[i]);
-            i++;
-        }
-        frame += userName + " " + content;
+        userName.append(&bytesArray[3]);
+        content.append(&bytesArray[userName.size() + 4]);
+        frame += " " + userName + " " + content;
     }
     if (opCode == 10) {
         frame += "ACK";
@@ -125,11 +118,7 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
                      " " + std::to_string(numFollowing) + '\n';
         } else if (opCode2 == 4) {
             string userName;
-            int i = 4;
-            while (bytesArray[i] != '\0') {
-                userName.append(&bytesArray[i]);
-                i++;
-            }
+            userName.append(&bytesArray[4]);
             frame += " " + userName;
         } else if (opCode2 == 3)
             logout = true;

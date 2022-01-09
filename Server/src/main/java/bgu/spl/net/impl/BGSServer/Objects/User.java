@@ -12,8 +12,7 @@ public class User {
     private String userName;
     private String password;
     private String birthday;
-    private boolean loggedIn = false;
-    private int connectionId;
+    private int connectionId = -1;
     private Set<User> following = new HashSet<>();
     private Set<User> followers= new HashSet<>();
     private Set<User> blocking = new HashSet<>();
@@ -28,7 +27,7 @@ public class User {
     }
 
     public boolean isLoggedIn(){
-        return loggedIn;
+        return connectionId != -1;
     }
 
     public String getUserName() {
@@ -44,12 +43,10 @@ public class User {
     }
 
     public void login(int connectionId){
-        loggedIn = true;
         this.connectionId = connectionId;
     }
 
     public void logout(){
-        loggedIn = false;
         this.connectionId = -1;
     }
 
@@ -58,10 +55,16 @@ public class User {
     }
 
     public void addFollower(User user){
+        followers.add(user);
+    }
+    public void addFollowing(User user){
         following.add(user);
     }
 
     public void removeFollower(User user){
+        followers.remove(user);
+    }
+    public void removeFollowing(User user){
         following.remove(user);
     }
 
@@ -79,6 +82,18 @@ public class User {
 
     public short getNumberOfFollowings(){
         return ((short) following.size());
+    }
+
+    public int getConnectionId() {
+        return connectionId;
+    }
+
+    public Set<User> getFollowing() {
+        return following;
+    }
+
+    public Set<User> getFollowers() {
+        return followers;
     }
 
     public short getNumberOfFollowers(){

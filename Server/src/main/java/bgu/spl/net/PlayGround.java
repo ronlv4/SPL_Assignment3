@@ -12,7 +12,11 @@ import java.util.function.Supplier;
 
 public class PlayGround {
     public static void main(String[] args) {
-        byte[] commandBytes = {'1', '\0', 48, 0, 127};
-        byte followUnfollow = commandBytes[2];
+        byte type = '\u0001';
+        String postingUser = "ron";
+        String content = "wubwub";
+        byte delimiter = ';';
+        byte[] response = ("\u0000\u0009" + type + postingUser + "\u0000" + content + "\u0000" + ((char) delimiter)).getBytes(StandardCharsets.UTF_8);
+        System.out.println("hello");
     }
 }
