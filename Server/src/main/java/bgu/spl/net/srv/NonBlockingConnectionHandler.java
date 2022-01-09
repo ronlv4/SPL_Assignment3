@@ -1,6 +1,6 @@
 package bgu.spl.net.srv;
 
-import bgu.spl.net.api .MessageEncoderDecoder;
+import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
 import bgu.spl.net.impl.bidi.ConnectionsImpl;
@@ -54,7 +54,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
                         if (nextMessage != null) {
                             protocol.process(nextMessage);
                         }
-                     }
+                    }
                 } finally {
                     releaseBuffer(buf);
                 }
@@ -121,7 +121,7 @@ public class NonBlockingConnectionHandler<T> implements ConnectionHandler<T> {
         reactor.updateInterestedOps(chan, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
-    public void startProtocol(ConnectionsImpl<T> activeConnections){
+    public void startProtocol(ConnectionsImpl<T> activeConnections) {
         int connectionId = activeConnections.addConnection(this);
         protocol.start(connectionId, activeConnections);
     }

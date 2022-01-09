@@ -13,9 +13,6 @@ public class Notification implements ServerToClientCommand<BGSService>, CommandW
     private String content;
 
 
-    public Notification() {
-    }
-
     public Notification(byte type, String postingUser, String content) {
         this.type = type;
         this.postingUser = postingUser;
@@ -24,7 +21,6 @@ public class Notification implements ServerToClientCommand<BGSService>, CommandW
 
     @Override
     public byte[] encode(byte delimiter) {
-        byte[] response = ("\u0000\u0009" + ((char) type) + postingUser + "\u0000" + content + "\u0000" + ((char) delimiter)).getBytes(StandardCharsets.UTF_8);
-         return  response;
+        return ("\u0000\u0009" + ((char) type) + postingUser + "\u0000" + content + "\u0000" + ((char) delimiter)).getBytes(StandardCharsets.UTF_8);
     }
 }

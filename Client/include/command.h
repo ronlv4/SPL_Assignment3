@@ -1,6 +1,0 @@
-#ifndef CLIENT_COMMAND_H
-#define CLIENT_COMMAND_H
-
-
-
-#endif //CLIENT_COMMAND_H

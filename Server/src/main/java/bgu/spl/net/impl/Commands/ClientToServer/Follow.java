@@ -29,10 +29,6 @@ public class Follow implements ClientToServerCommand<BGSService>, CommandWithArg
         userName = new String(Arrays.copyOfRange(commandBytes, 3, next));
     }
 
-    public byte getFollowUnfollow() {
-        return followUnfollow;
-    }
-
     public String getUserName() {
         return userName;
     }

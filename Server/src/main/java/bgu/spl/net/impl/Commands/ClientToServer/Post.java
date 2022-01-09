@@ -20,10 +20,6 @@ public class Post implements ClientToServerCommand<BGSService>, CommandWithArgum
     public Post() {
     }
 
-    public Post(String content) {
-        this.content = content;
-    }
-
     public Post(User userPosted, String content) {
         this.userPosted = userPosted;
         this.content = content;

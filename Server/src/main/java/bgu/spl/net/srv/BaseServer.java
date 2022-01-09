@@ -29,7 +29,7 @@ public abstract class BaseServer<T> implements Server<T> {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
-		this.sock = null;
+        this.sock = null;
         this.activeConnections = activeConnections;
     }
 
@@ -37,7 +37,7 @@ public abstract class BaseServer<T> implements Server<T> {
     public void serve() {
 
         try (ServerSocket serverSock = new ServerSocket(port)) {
-			System.out.println("Server started");
+            System.out.println("Server started");
             System.out.println(InetAddress.getLocalHost());
             this.sock = serverSock; //just to be able to close
 
@@ -60,9 +60,9 @@ public abstract class BaseServer<T> implements Server<T> {
 
     @Override
     public void close() throws IOException {
-		if (sock != null)
-			sock.close();
+        if (sock != null)
+            sock.close();
     }
 
-    protected abstract void execute(BlockingConnectionHandler<T>  handler);
+    protected abstract void execute(BlockingConnectionHandler<T> handler);
 }

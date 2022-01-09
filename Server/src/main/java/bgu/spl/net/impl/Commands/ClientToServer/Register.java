@@ -17,12 +17,6 @@ public class Register implements ClientToServerCommand<BGSService>, CommandWithA
     public Register() {
     }
 
-    public Register(String userName, String password, String birthday) {
-        this.userName = userName;
-        this.password = password;
-        this.birthday = birthday;
-    }
-
     @Override
     public boolean execute(BGSService service, int connectionId) {
         return service.registerUser(connectionId, userName, password, birthday);
