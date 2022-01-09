@@ -29,14 +29,14 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
     }
 
     @Override
-    public byte[] encode() {
+    public byte[] encode(byte delimiter) {
         switch (messageOpCode){
             case 4:
-                return encodeFollow();
+                return encodeFollow(delimiter);
             case 7:
-                return encodeLogStat();
+                return encodeLogStat(delimiter);
             case 8:
-                return encodeStat();
+                return encodeStat(delimiter);
         }
         byte[] byteResponse = new byte[5];
         byte[] byteAckOpCode = shortToBytes(getOpCode());
@@ -45,17 +45,16 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
             byteResponse[i] = byteAckOpCode[i];
             byteResponse[i + 2] = byteMessageOpCode[i];
         }
-        byteResponse[4] = ((byte) ';');
+        byteResponse[4] = delimiter;
         return byteResponse;
     }
 
-    private byte[] encodeFollow() {
+    private byte[] encodeFollow(byte delimiter) {
         Follow followCommand = ((Follow) optional);
         byte[] ackOpCode = shortToBytes(Ack.getOpCode());
         byte[] followOpCode = shortToBytes(Follow.getOpcode());
         byte[] userNameByte = followCommand.getUserName().getBytes(StandardCharsets.UTF_8);
-        byte[] byteResponse = new byte[5 + userNameByte.length];
-        byteResponse[byteResponse.length - 1] = 0;
+        byte[] byteResponse = new byte[6 + userNameByte.length];
         for (int i = 0; i < 2; i++){
             byteResponse[i] = ackOpCode[i];
             byteResponse[i+2] = followOpCode[i];
@@ -63,20 +62,22 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
         for (int i = 0; i < userNameByte.length; i++){
             byteResponse[i + 4] = userNameByte[0];
         }
+        byteResponse[byteResponse.length - 2] = '\0';
+        byteResponse[byteResponse.length - 1] = (delimiter);
         return byteResponse;
     }
 
-    private byte[] encodeLogStat() {
-        return encodeStatLogStat(LogStat.getOpCode());
+    private byte[] encodeLogStat(byte delimiter) {
+        return encodeStatLogStat(LogStat.getOpCode(), delimiter);
     }
 
-    private byte[] encodeStat() {
-        return encodeStatLogStat(Stat.getOpCode());
+    private byte[] encodeStat(byte delimiter) {
+        return encodeStatLogStat(Stat.getOpCode(), delimiter);
     }
 
-    private byte[] encodeStatLogStat(short opCode) {
+    private byte[] encodeStatLogStat(short opCode, byte delimiter) {
         List<UserStats> userStats = (List<UserStats>) optional;
-        byte[] byteResponse = new byte[12];
+        byte[] byteResponse = new byte[13];
         byte[] ackOpCode = shortToBytes(Ack.getOpCode());
         byte[] logStatOpCode = shortToBytes(opCode);
         for (UserStats userStat : userStats) {
@@ -93,35 +94,11 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
                 byteResponse[i + 10] = numFollowing[i];
             }
         }
+        byteResponse[12] = delimiter;
         return byteResponse;
     }
 
     public static short getOpCode(){
         return 10;
     }
-
-//    private byte[] encodeStatLogStat(short opCode) {
-//        List<UserStats> userStats= (List<UserStats>) optional;
-//        byte[] byteResponse = new byte[12 * userStats.size()];
-//        byte[] ackOpCode = shortToBytes(Ack.getOpCode());
-//        byte[] logStatOpCode = shortToBytes(LogStat.getOpCode());
-//        int userIndex = 0;
-//        for (UserStats userStat: userStats){
-//            byte[] age = shortToBytes(userStat.getAge());
-//            byte[] numPosts = shortToBytes(userStat.getPosts());
-//            byte[] numFollowers = shortToBytes(userStat.getFollowers());
-//            byte[] numFollowing = shortToBytes(userStat.getFollowing());
-//            for (int i = 0; i < 2; i++){
-//                byteResponse[i + userIndex] = ackOpCode[i];
-//                byteResponse[i + 2 + userIndex] = logStatOpCode[i + 2];
-//                byteResponse[i + 4 + userIndex] = age[i + 4];
-//                byteResponse[i + 6 + userIndex] = numPosts[i + 6];
-//                byteResponse[i + 8 + userIndex] = numFollowers[i + 8];
-//                byteResponse[i + 10 + userIndex] = numFollowing[i + 10];
-//            }
-//            userIndex += 12;
-//        }
-//        return byteResponse;
-
-//    }
 }

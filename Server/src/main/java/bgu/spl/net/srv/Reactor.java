@@ -107,19 +107,12 @@ public class Reactor<T> implements Server<T> {
                 protocolFactory.get(),
                 clientChan,
                 this);
-//        int conId = activeConnections.addConnection(handler);
-//        int conId = handler.addConnection();
         handler.startProtocol((ConnectionsImpl<T>) activeConnections);
 
 
 
 
         clientChan.register(selector, SelectionKey.OP_READ, handler);
-        System.out.println("accepted socket: " + clientChan);
-        System.out.println("created for it new handler: " + handler);
-        System.out.println("protocol: " + protocolFactory.get());
-        System.out.println("reader: " + readerFactory.get());
-        System.out.println("");
     }
 
     private void handleReadWrite(SelectionKey key) {

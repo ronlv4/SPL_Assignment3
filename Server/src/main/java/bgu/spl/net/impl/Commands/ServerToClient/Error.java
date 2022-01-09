@@ -21,7 +21,7 @@ public class Error implements ServerToClientCommand<BGSService>, CommandWithArgu
     }
 
     @Override
-    public byte[] encode() {
+    public byte[] encode(byte delimiter) {
         byte[] byteResponse = new byte[5];
         byte[] byteErrorOpCode = shortToBytes((short) 11);
         byte[] byteMessageOpCode = shortToBytes(messageOpCode);
@@ -29,7 +29,7 @@ public class Error implements ServerToClientCommand<BGSService>, CommandWithArgu
             byteResponse[i] = byteErrorOpCode[i];
             byteResponse[i + 2] = byteMessageOpCode[i];
         }
-        byteResponse[4] = ((byte) ';');
+        byteResponse[4] = delimiter;
         return byteResponse;
     }
 }

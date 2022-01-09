@@ -13,7 +13,6 @@ int main (int argc, char *argv[]) {
     string host = argv[1];
     short port = atoi(argv[2]);
 
-    
     ConnectionHandler connectionHandler(host, port);
     if (!connectionHandler.connect()) {
         cerr << "Cannot connect to " << host << ":" << port << endl;
@@ -31,14 +30,12 @@ int main (int argc, char *argv[]) {
         string answer;
         if (!connectionHandler.getLine(answer)) {
             cout << "Disconnected. Exiting...\n" << endl;
-            break;
+            exit(0);
         }
-		unsigned long len=answer.size();
-        cout << "Reply: " << answer << " - " << len << " bytes " << endl << endl;
+        cout << "Reply: " << answer << endl;
         if (answer == "bye") {
             cout << "Exiting...\n" << endl;
-            break;
+            exit(0);
         }
     }
-    return 0;
 }

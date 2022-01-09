@@ -1,39 +1,15 @@
-//#include <stdlib.h>
-//#include <mutex>
-//#include <connectionHandler.h>
-//#include <readFromKeyboard.h>
-//
-//readFromKeyboard::readFromKeyboard(ConnectionHandler &_connectionHandler) {
-//    readFromKeyboard::run(){
-//        while (1) {
-//            std::cin.getline(buf, bufsize);
-//            std::string line(buf);
-//            int len = line.length();
-//            if (!_connectionHandler.sendLine(line)) {
-//                std::cout << "Disconnected. Exiting...\n" << std::endl;
-//                break;
-//            }
-//            std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
-//            break;
-//        }
-//    }
-//}
 #include <readFromKeyboard.h>
 
-readFromKeyboard::readFromKeyboard(ConnectionHandler &connectionHandler): _connectionHandler(&connectionHandler) {
-
+readFromKeyboard::readFromKeyboard(ConnectionHandler &connectionHandler) : _connectionHandler(&connectionHandler){
 }
 
 void readFromKeyboard::run() {
-    while (1) {
-            std::cin.getline(buf, bufsize);
-            std::string line(buf);
-            int len = line.length();
-            if (!_connectionHandler->sendLine(line)) {
-                std::cout << "Disconnected. Exiting...\n" << std::endl;
-                break;
-            }
-            std::cout << "Sent " << len + 1 << " bytes to server" << std::endl;
+    while (true){
+        std::cin.getline(buf, bufsize);
+        std::string line(buf);
+        if (!_connectionHandler->sendLine(line)) {
+            std::cout << "Disconnected. Exiting...\n" << std::endl;
+            break;
         }
+    }
 }
-

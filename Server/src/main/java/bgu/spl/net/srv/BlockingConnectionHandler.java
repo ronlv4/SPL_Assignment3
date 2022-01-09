@@ -3,6 +3,7 @@ package bgu.spl.net.srv;
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.impl.bidi.ConnectionsImpl;
 import bgu.spl.net.srv.bidi.ConnectionHandler;
 
 import java.io.BufferedInputStream;
@@ -60,5 +61,10 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startProtocol(ConnectionsImpl<T> activeConnections){
+        int connectionId = activeConnections.addConnection(this);
+        protocol.start(connectionId, activeConnections);
     }
 }
