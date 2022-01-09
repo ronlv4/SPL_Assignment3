@@ -10,16 +10,15 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port, std::mutex &mutex, std::condition_variable &cond) : host_(
-        host), port_(port), io_service_(), socket_(io_service_), readMutex(mutex),readCond(cond) {}
+ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port), io_service_(),
+                                                                socket_(io_service_) {}
 
 ConnectionHandler::~ConnectionHandler() {
     close();
 }
 
 bool ConnectionHandler::connect() {
-    std::cout << "Starting connect to "
-              << host_ << ":" << port_ << std::endl;
+    std::cout << "Starting connect to " << host_ << ":" << port_ << std::endl;
     try {
         tcp::endpoint endpoint(boost::asio::ip::address::from_string(host_), port_); // the server endpoint
         boost::system::error_code error;
@@ -142,7 +141,6 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
     }
     try {
         if (logout) {
-//            terminate();
             close();
             frame = "bye";
         }
@@ -150,8 +148,6 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
         std::cerr << "recv failed (getFrameAscii2) (Error: " << e.what() << ')' << std::endl;
         return false;
     }
-    std::unique_lock<std::mutex> lk(readMutex);
-    readCond.notify_all();
     return true;
 }
 
@@ -169,12 +165,3 @@ void ConnectionHandler::close() {
         std::cout << "closing failed: connection already closed" << std::endl;
     }
 }
-
-void ConnectionHandler::terminate() {
-    terminated = true;
-}
-
-bool ConnectionHandler::shouldTerminate() {
-    return terminated;
-}
-

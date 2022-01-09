@@ -12,18 +12,14 @@ int main (int argc, char *argv[]) {
     }
     string host = argv[1];
     short port = atoi(argv[2]);
-    std::condition_variable _cond;
-    std::mutex _mutex;
-    make_shared<std::mutex>();
 
-
-    ConnectionHandler connectionHandler(host, port, _mutex, _cond);
+    ConnectionHandler connectionHandler(host, port);
     if (!connectionHandler.connect()) {
         cerr << "Cannot connect to " << host << ":" << port << endl;
         return 1;
     }
 
-    readFromKeyboard task(connectionHandler, _mutex, _cond);
+    readFromKeyboard task(connectionHandler);
 
     thread th1(&readFromKeyboard::run, &task);
 //    th1.join();
@@ -37,7 +33,7 @@ int main (int argc, char *argv[]) {
             exit(0);
         }
 		unsigned long len=answer.size();
-        cout << "Reply: " << answer << " - " << len << " bytes " << endl << endl;
+        cout << "Reply: " << answer << endl;
         if (answer == "bye") {
             cout << "Exiting...\n" << endl;
             exit(0);
