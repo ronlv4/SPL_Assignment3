@@ -54,8 +54,14 @@ public class BGSService {
             return activeConnections.send(connectionId, err);
         user.login(connectionId);
         connectedUsers.put(connectionId, user);
+        try{
+            activeConnections.send(connectionId, ack);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
         checkAndSendNotification(connectionId);
-        return activeConnections.send(connectionId, ack);
+        return true;
     }
 
     private void checkAndSendNotification(int connectionId) {
@@ -161,6 +167,7 @@ public class BGSService {
         for (String word : filteredWords)
             message.setContent(message.getContent().replace(word, "<filtered>"));
         messagesDB.get(sendingUser).add(message);
+        sendOrStoreNotification(receivingUser, new Notification(((byte) 0), sendingUser.getUserName(), message.getContent()));
         return activeConnections.send(connectionId, new Ack(PM.getOpCode()));
     }
 

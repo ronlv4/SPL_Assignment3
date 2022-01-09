@@ -103,7 +103,7 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
         string content;
         userName.append(&bytesArray[3]);
         content.append(&bytesArray[userName.size() + 4]);
-        frame += userName + " " + content;
+        frame += " " + userName + " " + content;
     }
     if (opCode == 10) {
         frame += "ACK";
