@@ -30,7 +30,7 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
 
     @Override
     public byte[] encode(BaseCommand<BGSService> message) {
-        return ((ServerToClientCommand<BGSService>)message).encode();
+        return ((ServerToClientCommand<BGSService>)message).encode(((byte) ';'));
     }
 
 

@@ -76,7 +76,7 @@ public class BGSService {
         user.logout();
         connectedUsers.remove(connectionId);
         if (activeConnections.send(connectionId, new Ack(Logout.getOpCode()))) {
-            activeConnections.disconnect(connectionId);
+//            activeConnections.disconnect(connectionId);
             return true;
         }
         return false;

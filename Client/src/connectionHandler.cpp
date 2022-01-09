@@ -1,5 +1,6 @@
 #include <connectionHandler.h>
 #include <encoderDecoder.h>
+#include <readFromKeyboard.h>
 
 using boost::asio::ip::tcp;
 
@@ -9,8 +10,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ConnectionHandler::ConnectionHandler(string host, short port) : host_(host), port_(port), io_service_(),
-                                                                socket_(io_service_) {}
+ConnectionHandler::ConnectionHandler(string host, short port, std::mutex &mutex, std::condition_variable &cond) : host_(
+        host), port_(port), io_service_(), socket_(io_service_), readMutex(mutex),readCond(cond) {}
 
 ConnectionHandler::~ConnectionHandler() {
     close();
@@ -43,7 +44,7 @@ bool ConnectionHandler::getBytes(char bytes[], unsigned int bytesToRead) {
         if (error)
             throw boost::system::system_error(error);
     } catch (std::exception &e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed (getBytes) (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -59,7 +60,7 @@ bool ConnectionHandler::sendBytes(const char bytes[], int bytesToWrite) {
         if (error)
             throw boost::system::system_error(error);
     } catch (std::exception &e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed (sendBytes) (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     return true;
@@ -76,15 +77,18 @@ bool ConnectionHandler::sendLine(std::string &line) {
 bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
     char ch;
     int i = 0;
-    char * bytesArray = new char [1 << 10];
+    char *bytesArray = new char[1 << 10];
+    bool readingError;
     try {
         do {
-            getBytes(&ch, 1);
-            strncpy(bytesArray + i,&ch,1);
+            readingError = !getBytes(&ch, 1);
+            strncpy(bytesArray + i, &ch, 1);
             i++;
-        } while (delimiter != ch);
+        } while (delimiter != ch && !readingError);
+        if (readingError)
+            return false;
     } catch (std::exception &e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed (getFrameAscii) (Error: " << e.what() << ')' << std::endl;
         return false;
     }
     short opCode = encoderDecoder::bytesToShort(bytesArray);
@@ -116,14 +120,14 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
         if (opCode2 == 7 || opCode2 == 8) {
             short numFollowing = encoderDecoder::bytesToShort(bytesArray + 4);
             short numFollowers = encoderDecoder::bytesToShort(bytesArray + 6);
-            short numPosts = encoderDecoder::bytesToShort(bytesArray+ 8);
+            short numPosts = encoderDecoder::bytesToShort(bytesArray + 8);
             short age = encoderDecoder::bytesToShort(bytesArray + 10);
             frame += " " + std::to_string(age) + " " + std::to_string(numPosts) + " " + std::to_string(numFollowers) +
                      " " + std::to_string(numFollowing) + '\n';
         } else if (opCode2 == 4) {
             string userName;
             int i = 4;
-            while (bytesArray[i] != '\0'){
+            while (bytesArray[i] != '\0') {
                 userName.append(&bytesArray[i]);
                 i++;
             }
@@ -138,13 +142,16 @@ bool ConnectionHandler::getFrameAscii(std::string &frame, char delimiter) {
     }
     try {
         if (logout) {
+//            terminate();
             close();
             frame = "bye";
         }
     } catch (std::exception &e) {
-        std::cerr << "recv failed (Error: " << e.what() << ')' << std::endl;
+        std::cerr << "recv failed (getFrameAscii2) (Error: " << e.what() << ')' << std::endl;
         return false;
     }
+    std::unique_lock<std::mutex> lk(readMutex);
+    readCond.notify_all();
     return true;
 }
 
@@ -161,5 +168,13 @@ void ConnectionHandler::close() {
     } catch (...) {
         std::cout << "closing failed: connection already closed" << std::endl;
     }
+}
+
+void ConnectionHandler::terminate() {
+    terminated = true;
+}
+
+bool ConnectionHandler::shouldTerminate() {
+    return terminated;
 }
 
