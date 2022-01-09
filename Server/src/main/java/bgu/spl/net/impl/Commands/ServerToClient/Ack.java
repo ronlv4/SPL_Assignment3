@@ -54,7 +54,7 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
         byte[] ackOpCode = shortToBytes(Ack.getOpCode());
         byte[] followOpCode = shortToBytes(Follow.getOpcode());
         byte[] userNameByte = followCommand.getUserName().getBytes(StandardCharsets.UTF_8);
-        byte[] byteResponse = new byte[6 + userNameByte.length];
+        byte[] byteResponse = new byte[6 + userNameByte.length]; // 14
         for (int i = 0; i < 2; i++){
             byteResponse[i] = ackOpCode[i];
             byteResponse[i+2] = followOpCode[i];
@@ -67,6 +67,8 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
         return byteResponse;
     }
 
+//    [0, 10, 0, 4, 1, 2, 3, 4, 5, 6, 7,  8,  0, 59]
+//    0   1   2  3  4  5  6  7  8  9  10  11 12  13
     private byte[] encodeLogStat(byte delimiter) {
         return encodeStatLogStat(LogStat.getOpCode(), delimiter);
     }

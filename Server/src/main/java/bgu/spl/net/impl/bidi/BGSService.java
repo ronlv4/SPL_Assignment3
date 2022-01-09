@@ -98,10 +98,12 @@ public class BGSService {
         if (followUnfollow == 1 && (!isAlreadyFollowing))
             return activeConnections.send(connectionId, err);
         if (followUnfollow == 0) {
-            thisUser.addFollower(userToFollowUnfollow);
+            thisUser.addFollowing(userToFollowUnfollow);
+            userToFollowUnfollow.addFollower(thisUser);
             return activeConnections.send(connectionId, new Ack(Follow.getOpcode(), thisCommand));
         }
-        thisUser.removeFollower(userToFollowUnfollow);
+        thisUser.removeFollowing(userToFollowUnfollow);
+        userToFollowUnfollow.removeFollower(thisUser);
         return activeConnections.send(connectionId, new Ack(Follow.getOpcode(), thisCommand));
     }
 
@@ -117,22 +119,25 @@ public class BGSService {
             User notifiedUser = usersByUserName.get(userName);
             if (notifiedUser != null) {
                 Notification notification = new Notification(((byte) 1), poster.getUserName(), content);
-                sendOrStoreNotification (connectionId, notifiedUser, notification);
+                sendOrStoreNotification(notifiedUser, notification);
             }
         }
+        for (User user: poster.getFollowers()){
+            Notification notification = new Notification(((byte) 1), poster.getUserName(), content);
+            sendOrStoreNotification(user, notification);
+        }
+
         return activeConnections.send(connectionId, new Ack(Post.getOpCode()));
     }
 
     /**
      * if notified user is logged in then send him a notification otherwise store this notification in his queue
-     * @param connectionId
      * @param notifiedUser
      * @param notification
      */
-    private void sendOrStoreNotification(int connectionId, User notifiedUser, Notification notification) {
-
+    private void sendOrStoreNotification(User notifiedUser, Notification notification) {
         if (notifiedUser.isLoggedIn())
-            sendNotification(connectionId, notification);
+            sendNotification(notifiedUser.getConnectionId(), notification);
         else
             usersNotifications.get(notifiedUser).add(notification);
     }
