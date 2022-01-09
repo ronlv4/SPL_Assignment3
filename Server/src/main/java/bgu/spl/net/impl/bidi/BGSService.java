@@ -201,7 +201,7 @@ public class BGSService {
             if (userToLog.isBlocking(user) || user.isBlocking(userToLog))
                 return activeConnections.send(connectionId, err);
             try {
-                activeConnections.send(connectionId, new Ack(LogStat.getOpCode(), new UserStats(userToLog)));
+                activeConnections.send(connectionId, new Ack(Stat.getOpCode(), new UserStats(userToLog)));
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;

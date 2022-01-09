@@ -70,31 +70,29 @@ public class Ack implements ServerToClientCommand<BGSService>, CommandWithArgume
 //    [0, 10, 0, 4, 1, 2, 3, 4, 5, 6, 7,  8,  0, 59]
 //    0   1   2  3  4  5  6  7  8  9  10  11 12  13
     private byte[] encodeLogStat(byte delimiter) {
-        return encodeStatLogStat(LogStat.getOpCode(), delimiter);
+        return encodeStatLogStat((short) 7, delimiter);
     }
 
     private byte[] encodeStat(byte delimiter) {
-        return encodeStatLogStat(Stat.getOpCode(), delimiter);
+        return encodeStatLogStat((short) 8, delimiter);
     }
 
     private byte[] encodeStatLogStat(short opCode, byte delimiter) {
-        List<UserStats> userStats = (List<UserStats>) optional;
+        UserStats userStats = (UserStats) optional;
         byte[] byteResponse = new byte[13];
         byte[] ackOpCode = shortToBytes(Ack.getOpCode());
         byte[] logStatOpCode = shortToBytes(opCode);
-        for (UserStats userStat : userStats) {
-            byte[] age = shortToBytes(userStat.getAge());
-            byte[] numPosts = shortToBytes(userStat.getPosts());
-            byte[] numFollowers = shortToBytes(userStat.getFollowers());
-            byte[] numFollowing = shortToBytes(userStat.getFollowing());
-            for (int i = 0; i < 2; i++) {
-                byteResponse[i] = ackOpCode[i];
-                byteResponse[i + 2] = logStatOpCode[i];
-                byteResponse[i + 4] = age[i];
-                byteResponse[i + 6] = numPosts[i];
-                byteResponse[i + 8] = numFollowers[i];
-                byteResponse[i + 10] = numFollowing[i];
-            }
+        byte[] age = shortToBytes(userStats.getAge());
+        byte[] numPosts = shortToBytes(userStats.getPosts());
+        byte[] numFollowers = shortToBytes(userStats.getFollowers());
+        byte[] numFollowing = shortToBytes(userStats.getFollowing());
+        for (int i = 0; i < 2; i++) {
+            byteResponse[i] = ackOpCode[i];
+            byteResponse[i + 2] = logStatOpCode[i];
+            byteResponse[i + 4] = age[i];
+            byteResponse[i + 6] = numPosts[i];
+            byteResponse[i + 8] = numFollowers[i];
+            byteResponse[i + 10] = numFollowing[i];
         }
         byteResponse[12] = delimiter;
         return byteResponse;
