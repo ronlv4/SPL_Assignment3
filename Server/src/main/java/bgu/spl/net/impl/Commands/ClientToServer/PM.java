@@ -12,7 +12,6 @@ public class PM implements ClientToServerCommand<BGSService>, CommandWithArgumen
 
     private String userName;
     private String content;
-    private String date;
 
     @Override
     public boolean execute(BGSService service, int connectionId) {
@@ -27,9 +26,6 @@ public class PM implements ClientToServerCommand<BGSService>, CommandWithArgumen
         int prev = next + 1;
         next = indexOf(commandBytes, ((byte) 0), prev);
         content = new String(Arrays.copyOfRange(commandBytes, prev, next));
-        prev = next + 1;
-        next = indexOf(commandBytes, ((byte) 0), prev);
-        date = new String(Arrays.copyOfRange(commandBytes, prev, next));
     }
 
     public void setContent(String content) {
@@ -42,10 +38,6 @@ public class PM implements ClientToServerCommand<BGSService>, CommandWithArgumen
 
     public String getContent() {
         return content;
-    }
-
-    public String getDate() {
-        return date;
     }
 
     public static short getOpCode(){
