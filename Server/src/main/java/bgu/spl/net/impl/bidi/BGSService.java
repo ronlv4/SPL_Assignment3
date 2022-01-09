@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 
-
 public class BGSService {
 
     public BGSService(Connections<BaseCommand<BGSService>> activeConnections) {
@@ -31,7 +30,7 @@ public class BGSService {
 
     public boolean registerUser(int connectionId, String userName, String password, String birthday) {
         if (usersByUserName.containsKey(userName))
-            return activeConnections.send(connectionId,new Error(Register.getOpCode()));
+            return activeConnections.send(connectionId, new Error(Register.getOpCode()));
         User userToAdd = new User(userName, password, birthday);
         usersByUserName.put(userName, userToAdd);
         usersNotifications.put(userToAdd, new ConcurrentLinkedQueue<>());
@@ -54,7 +53,7 @@ public class BGSService {
             return activeConnections.send(connectionId, err);
         user.login(connectionId);
         connectedUsers.put(connectionId, user);
-        try{
+        try {
             activeConnections.send(connectionId, ack);
         } catch (Exception e) {
             e.printStackTrace();
@@ -86,11 +85,9 @@ public class BGSService {
             return true;
         }
         return false;
-        // TODO delete all references to user
-        // TODO terminate connection
     }
 
-    public boolean followUser(int connectionId,Follow thisCommand, byte followUnfollow, String userName) {
+    public boolean followUser(int connectionId, Follow thisCommand, byte followUnfollow, String userName) {
         User thisUser = connectedUsers.get(connectionId);
         Error err = new Error(Follow.getOpcode());
         if (thisUser == null)
@@ -128,7 +125,7 @@ public class BGSService {
                 sendOrStoreNotification(notifiedUser, notification);
             }
         }
-        for (User user: poster.getFollowers()){
+        for (User user : poster.getFollowers()) {
             Notification notification = new Notification(((byte) 1), poster.getUserName(), content);
             sendOrStoreNotification(user, notification);
         }
@@ -138,6 +135,7 @@ public class BGSService {
 
     /**
      * if notified user is logged in then send him a notification otherwise store this notification in his queue
+     *
      * @param notifiedUser
      * @param notification
      */
@@ -161,7 +159,7 @@ public class BGSService {
         if (receivingUser == null)
             return activeConnections.send(
                     connectionId,
-                    new Error(PM.getOpCode(), "@" + message.getUserName() + " isn't applilcable for private messages." ));
+                    new Error(PM.getOpCode(), "@" + message.getUserName() + " isn't applilcable for private messages."));
         if (!sendingUser.isFollowing(receivingUser.getUserName()))
             return activeConnections.send(connectionId, err);
         for (String word : filteredWords)
@@ -176,7 +174,7 @@ public class BGSService {
         Error err = new Error(LogStat.getOpCode());
         if (user == null)
             return activeConnections.send(connectionId, err);
-        for (User userToLog: connectedUsers.values()){
+        for (User userToLog : connectedUsers.values()) {
             if (userToLog.isBlocking(user))
                 continue;
             try {

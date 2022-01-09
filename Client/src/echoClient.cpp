@@ -30,9 +30,6 @@ int main (int argc, char *argv[]) {
             cout << "Disconnected. Exiting...\n" << endl;
             exit(0);
         }
-        cout << answer.size() << endl;
-        const char * bytes = answer.c_str();
-
         cout << answer << endl;
         if (answer == "bye") {
             cout << "Exiting...\n" << endl;

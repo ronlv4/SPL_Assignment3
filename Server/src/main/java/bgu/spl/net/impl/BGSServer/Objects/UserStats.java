@@ -1,13 +1,9 @@
 package bgu.spl.net.impl.BGSServer.Objects;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -19,7 +15,7 @@ public class UserStats {
     private short following;
 
 
-    public UserStats(User user){
+    public UserStats(User user) {
         try {
             age = calculateAge(user.getBirthday());
         } catch (ParseException e) {
@@ -30,7 +26,7 @@ public class UserStats {
         following = user.getNumberOfFollowings();
     }
 
-    private short calculateAge(String birthday) throws ParseException{
+    private short calculateAge(String birthday) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
         Date d = sdf.parse(birthday);
         Calendar c = Calendar.getInstance();

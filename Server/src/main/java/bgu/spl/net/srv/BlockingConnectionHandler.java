@@ -63,7 +63,7 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
         }
     }
 
-    public void startProtocol(ConnectionsImpl<T> activeConnections){
+    public void startProtocol(ConnectionsImpl<T> activeConnections) {
         int connectionId = activeConnections.addConnection(this);
         protocol.start(connectionId, activeConnections);
     }

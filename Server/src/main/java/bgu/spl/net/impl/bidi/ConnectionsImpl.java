@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConnectionsImpl<T> implements Connections<T> {
 
-    private Map<Integer,ConnectionHandler<T>> activeConnections = new ConcurrentHashMap<>();
+    private Map<Integer, ConnectionHandler<T>> activeConnections = new ConcurrentHashMap<>();
     private AtomicInteger connectionId = new AtomicInteger(0);
 
     @Override
@@ -18,17 +18,17 @@ public class ConnectionsImpl<T> implements Connections<T> {
         ConnectionHandler<T> handler = activeConnections.get(connectionId);
         if (handler == null)
             return false;
-        try{
+        try {
             handler.send(msg);
             return true;
-        } catch (Exception e){ // TODO: General Exception
+        } catch (Exception e) {
             return false;
         }
     }
 
     @Override
     public void broadcast(T msg) {
-        for (ConnectionHandler<T> handler: activeConnections.values()){
+        for (ConnectionHandler<T> handler : activeConnections.values()) {
             handler.send(msg);
         }
 
@@ -45,14 +45,10 @@ public class ConnectionsImpl<T> implements Connections<T> {
         activeConnections.remove(connectionId);
     }
 
-    public int addConnection(ConnectionHandler<T> handler){
+    public int addConnection(ConnectionHandler<T> handler) {
         int conId = connectionId.getAndIncrement();
         activeConnections.put(conId, handler);
         return conId;
     }
 
-    public ConnectionHandler<T> getHandler(int connectionId){
-        return activeConnections.get(connectionId);
-
-    }
 }

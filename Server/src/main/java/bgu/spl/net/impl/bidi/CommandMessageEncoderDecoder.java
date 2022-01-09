@@ -4,9 +4,7 @@ import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.Commands.*;
 import bgu.spl.net.impl.Commands.ClientToServer.*;
 
-import java.io.*;
 import java.util.Arrays;
-import java.util.Properties;
 
 public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseCommand<BGSService>> {
     private byte[] commandBytes = new byte[1 << 10];
@@ -30,19 +28,12 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
 
     @Override
     public byte[] encode(BaseCommand<BGSService> message) {
-        return ((ServerToClientCommand<BGSService>)message).encode(((byte) ';'));
+        return ((ServerToClientCommand<BGSService>) message).encode(((byte) ';'));
     }
 
 
     private ClientToServerCommand<BGSService> createAction(short opCode) {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        Properties properties = new Properties();
-        try (InputStream resourceStream = loader.getResourceAsStream("application.properties")) {
-            properties.load(resourceStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        switch (opCode){
+        switch (opCode) {
             case 1: // Register
                 return new Register();
             case 2: // Login
@@ -64,22 +55,12 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
         }
         return null;
     }
+
     private short decodeOpcode() {
-        short opcode = (short)((commandBytes[0] & 0xff) << 8);
-        opcode += (short)(commandBytes[1] & 0xff);
+        short opcode = (short) ((commandBytes[0] & 0xff) << 8);
+        opcode += (short) (commandBytes[1] & 0xff);
         return opcode;
     }
-
-//    private BaseCommand popString() {
-//        String result = new String(commandBytes, 0, len, StandardCharsets.UTF_8);
-//        len = 0;
-//        for (Byte curByte: commandBytes){
-//            gener += (T)(curByte & 0xff);
-//        return command;
-//        result = (T)Convert.ChangeType(bytes, typeof(T));
-//        return result;
-//        return null;
-//    }
 
     private void pushByte(byte nextByte) {
         if (len >= commandBytes.length) {
@@ -87,69 +68,4 @@ public class CommandMessageEncoderDecoder implements MessageEncoderDecoder<BaseC
         }
         commandBytes[len++] = nextByte;
     }
-//    @Override
-//    public byte[] encode(Serializable message) {
-//        return serializeObject(message);
-
-//    }
-//    private byte[] serializeObject(Serializable message) {
-//        try {
-//            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//
-//            //placeholder for the object size
-//            for (int i = 0; i < 4; i++) {
-//                bytes.write(0);
-//            }
-//
-//            ObjectOutput out = new ObjectOutputStream(bytes);
-//            out.writeObject(message);
-//            out.flush();
-//            byte[] result = bytes.toByteArray();
-//
-//            //now write the object size
-//            ByteBuffer.wrap(result).putInt(result.length - 4);
-//            return result;
-//
-//        } catch (Exception ex) {
-//            throw new IllegalArgumentException("cannot serialize object", ex);
-//        }
-
-//    }
-//    private Serializable deserializeCommand() {
-//        try {
-//            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(commandBytes));
-//            Serializable serializableObject = (Serializable) in.readObject();
-//            System.out.println(serializableObject);
-//            return serializableObject;
-////            return (Serializable) in.readObject();
-//        } catch (Exception ex) {
-//            throw new IllegalArgumentException("cannot desrialize object", ex);
-
-//        }
-
-//    }
-
-
-//    @Override
-//    public Serializable decodeNextByte(byte nextByte) {
-//        if (commandBytes == null) { //indicates that we are still reading the length
-//            lengthBuffer.put(nextByte);
-//            if (!lengthBuffer.hasRemaining()) { //we read 4 bytes and therefore can take the length
-//                lengthBuffer.flip();
-//                commandBytes = new byte[lengthBuffer.getInt()];
-//                commandBytesIndex = 0;
-//                lengthBuffer.clear();
-//            }
-//        } else {
-//            commandBytes[commandBytesIndex] = nextByte;
-//            if (++commandBytesIndex == commandBytes.length) {
-//                Serializable result = deserializeCommand();
-//                commandBytes = null;
-//                return result;
-//            }
-//        }
-//
-//        return null;
-//    }
-
 }
