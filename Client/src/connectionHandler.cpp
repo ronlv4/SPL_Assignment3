@@ -1,6 +1,5 @@
 #include <connectionHandler.h>
 #include <encoderDecoder.h>
-#include <readFromKeyboard.h>
 
 using boost::asio::ip::tcp;
 
