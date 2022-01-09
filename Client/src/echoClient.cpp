@@ -1,5 +1,6 @@
 #include "readFromKeyboard.h"
 #include <connectionHandler.h>
+#include <boost/thread.hpp>
 
 using namespace std;
 /**
@@ -21,7 +22,7 @@ int main (int argc, char *argv[]) {
 
     readFromKeyboard task(connectionHandler);
 
-    thread th1(&readFromKeyboard::run, &task);
+    boost::thread th1(&readFromKeyboard::run, &task);
 
 	//From here we will see the rest of the ehco client implementation:
     while (1) {

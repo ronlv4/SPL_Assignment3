@@ -217,9 +217,11 @@ public class BGSService {
         if (userToBlock == null)
             return activeConnections.send(connectionId, err);
         userBlocking.addToBlockingList(userToBlock);
+        userBlocking.removeFollower(userToBlock);
+        userBlocking.removeFollowing(userToBlock);
         userToBlock.addToBlockersList(userBlocking);
         userToBlock.removeFollower(userBlocking);
-        userBlocking.removeFollower(userToBlock);
+        userToBlock.removeFollowing(userBlocking);
         return activeConnections.send(connectionId, new Ack(Block.getOpCode()));
     }
 }
