@@ -22,7 +22,7 @@ int main (int argc, char *argv[]) {
 
     readFromKeyboard task(connectionHandler);
 
-    boost::thread th1(&readFromKeyboard::run, &task);
+    std::thread th1(&readFromKeyboard::run, &task);
 
 	//From here we will see the rest of the ehco client implementation:
     while (1) {
